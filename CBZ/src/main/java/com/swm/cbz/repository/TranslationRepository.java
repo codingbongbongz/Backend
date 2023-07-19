@@ -1,4 +1,9 @@
 package com.swm.cbz.repository;
 
-public class TranslationRepository {
+import com.swm.cbz.domain.Translation;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+
+@RepositoryRestResource
+public interface TranslationRepository extends JpaRepository<Translation, Long> {
 }
