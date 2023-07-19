@@ -13,18 +13,16 @@ import java.util.Optional;
 @Service
 public class VideoService {
     private VideoRepository videoRepository;
-
     private UserRepository userRepository;
-
     private UserService userService;
+    private TranscriptService transcriptService;
 
     public ResponseEntity<Video> uploadVideo(String username, String link){
         Optional<User> userOptional = userService.searchUserById(username);
         if(userOptional.isPresent()){
-            Video video = new Video();
-            video.setLink(link);
-
+            return transcriptService.fetchTranscripts(link, username);
         }
+        return null;
     }
 
 }
