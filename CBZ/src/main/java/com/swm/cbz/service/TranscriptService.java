@@ -4,6 +4,9 @@ import com.swm.cbz.domain.Transcript;
 import com.swm.cbz.domain.User;
 import com.swm.cbz.domain.UserVideo;
 import com.swm.cbz.domain.Video;
+import com.swm.cbz.dto.TranscriptDTO;
+import com.swm.cbz.dto.TranscriptDataDTO;
+import com.swm.cbz.dto.TranscriptResponseDTO;
 import com.swm.cbz.repository.TranscriptRepository;
 import com.swm.cbz.repository.UserRepository;
 import com.swm.cbz.repository.UserVideoRepository;
@@ -16,7 +19,9 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TranscriptService {
@@ -91,5 +96,29 @@ public class TranscriptService {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    public TranscriptResponseDTO  getTranscriptsByVideoId(Long videoId) {Optional<Video> optionalVideo = videoRepository.findById(videoId);
+        if (!optionalVideo.isPresent()) {
+           return new TranscriptResponseDTO("자막 조회에 실패하였습니다.", null);
+        }
 
+        Video video = optionalVideo.get();
+        List<Transcript> transcripts = video.getTranscripts();
+
+        List<TranscriptDTO> transcriptDtos = transcripts.stream()
+                .map(t -> new TranscriptDTO(t.getTranscriptId(), t.getSentence(), t.getStart(), t.getDuration()))
+                .collect(Collectors.toList());
+
+        TranscriptDataDTO data = new TranscriptDataDTO(videoId, transcriptDtos);
+        return new TranscriptResponseDTO("자막 조회 성공하였습니다.", data);
+    }
+
+    public TranscriptDTO getTranscriptByVideoIdAndTranscriptId(Long videoId, Long transcriptId) {
+        Optional<Transcript> optionalTranscript = transcriptRepository.findByIdAndVideoId(transcriptId, videoId);
+
+        if (!optionalTranscript.isPresent()) {
+            throw new EntityNotFoundException("Transcript not found with id: " + transcriptId + " for video with id: " + videoId);
+        }
+        Transcript transcript = optionalTranscript.get();
+        return new TranscriptDTO(transcript.getTranscriptId(), transcript.getSentence(), transcript.getStart(), transcript.getDuration());
+    }
 }
