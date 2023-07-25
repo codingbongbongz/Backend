@@ -8,13 +8,11 @@ import com.swm.cbz.repository.TranscriptRepository;
 import com.swm.cbz.repository.UserRepository;
 import com.swm.cbz.repository.UserVideoRepository;
 import com.swm.cbz.repository.VideoRepository;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.*;
 
@@ -25,15 +23,17 @@ public class TranscriptService {
     private final VideoRepository videoRepository;
     private final WebClient webClient;
 
+    private final PollyService pollyService;
     private final UserVideoRepository userVideoRepository;
     ExchangeStrategies strategies = ExchangeStrategies.builder()
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024))
             .build();
 
-    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, UserVideoRepository userVideoRepository) {
+    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, PollyService pollyService, UserVideoRepository userVideoRepository) {
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
         this.transcriptRepository = transcriptRepository;
+        this.pollyService = pollyService;
         this.userVideoRepository = userVideoRepository;
         this.webClient = WebClient.builder()
                 .exchangeStrategies(strategies)
@@ -57,7 +57,7 @@ public class TranscriptService {
                     .block();
 
             Video video = new Video();
-            video.setLink("https://www.youtube.com/watch?v=" + link);
+            video.setLink(link);
             List<Transcript> transcriptList = new ArrayList<>();
             for (Map transcriptData : transcriptDataList) {
                 List<Map<String, Object>> transcripts = (List<Map<String, Object>>) transcriptData.get("transcripts");
@@ -72,9 +72,7 @@ public class TranscriptService {
                         if (base64Audio != null) {
                             audioBytes = Base64.getDecoder().decode(base64Audio);
                         }
-                    /*
-                    function for saving audio to S3 and setting soundlink value
-                    */
+                        transcript.setSoundLink(pollyService.synthesizeAndStore((String) transcriptMap.get("text")));
                         transcript.setVideo(video);
                         transcriptList.add(transcript);
                     }
