@@ -102,6 +102,9 @@ public class TranscriptService {
         }
 
         Video video = optionalVideo.get();
+        video.setViews(video.getViews()+1);
+        videoRepository.save(video);
+
         List<Transcript> transcripts = video.getTranscripts();
 
         List<TranscriptDTO> transcriptDtos = transcripts.stream()
