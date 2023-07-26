@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TranscriptDTO {
+
     private Long transcriptId;
     private String sentence;
-    private Double startTime; // We change it to String to match your JSON response
-    private Double duration; // We change it to String to match your JSON response
+    private Double startTime;
+    private Double duration;
 }

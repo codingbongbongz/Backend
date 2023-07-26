@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TranscriptResponseDTO {
+
     private String message;
     private TranscriptDataDTO data;
 }

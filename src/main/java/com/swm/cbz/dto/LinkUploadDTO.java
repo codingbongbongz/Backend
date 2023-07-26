@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LinkUploadDTO {
-    private String username;
 
+    private String username;
     private String link;
 }

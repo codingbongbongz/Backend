@@ -11,7 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class VideoController {
 
-    private VideoService videoService;
+    private final VideoService videoService;
+
+    public VideoController(VideoService videoService) {
+        this.videoService = videoService;
+    }
+
     @PostMapping("/upload")
     public ResponseEntity<Video> uploadVideo(@RequestBody LinkUploadDTO linkUploadDTO){
         String link = linkUploadDTO.getLink();

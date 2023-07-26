@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TranscriptDataDTO {
+
     private Long videoId;
     private List<TranscriptDTO> transcripts;
 }

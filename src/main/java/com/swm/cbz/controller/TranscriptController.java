@@ -1,20 +1,20 @@
 package com.swm.cbz.controller;
 
 import com.swm.cbz.dto.TranscriptDTO;
-import com.swm.cbz.dto.TranscriptDataDTO;
 import com.swm.cbz.dto.TranscriptResponseDTO;
 import com.swm.cbz.service.TranscriptService;
-import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TranscriptController {
-    @Autowired
-    private TranscriptService transcriptService;
+
+    private final TranscriptService transcriptService;
+
+    public TranscriptController(TranscriptService transcriptService) {
+        this.transcriptService = transcriptService;
+    }
 
     @GetMapping("/videos/{videoId}/transcripts")
     public TranscriptResponseDTO getTranscriptsForVideo(@PathVariable("videoId") Long id) {
