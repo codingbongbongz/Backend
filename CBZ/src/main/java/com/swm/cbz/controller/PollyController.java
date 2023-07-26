@@ -16,7 +16,7 @@ public class PollyController {
 
     private final TranscriptRepository transcriptRepository;
     private final PollyService pollyService;
-    
+
     public PollyController(TranscriptRepository transcriptRepository, PollyService pollyService) {
         this.transcriptRepository = transcriptRepository;
         this.pollyService = pollyService;
