@@ -8,11 +8,19 @@ import com.amazonaws.services.polly.model.SynthesizeSpeechRequest;
 import com.amazonaws.services.polly.model.SynthesizeSpeechResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.util.IOUtils;
 import com.swm.cbz.config.AWSConfig;
 import com.swm.cbz.domain.Transcript;
 import com.swm.cbz.repository.TranscriptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -24,10 +32,13 @@ public class PollyService {
     private String defaultKey;
     private TranscriptRepository transcriptRepository;
     private final AmazonPolly pollyClient;
-    private final AmazonS3 s3Client;
+    private AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
+            .withRegion(Regions.AP_NORTHEAST_2)
+            .build();
+
 
     @Autowired
-    public PollyService(AWSConfig awsConfig, TranscriptRepository transcriptRepository) {
+    public PollyService(AWSConfig awsConfig, TranscriptRepository transcriptRepository) throws IOException {
         this.pollyClient = AmazonPollyClientBuilder.defaultClient();
         this.s3Client = AmazonS3ClientBuilder.defaultClient();
         this.bucketName = awsConfig.getBucketName();
@@ -62,4 +73,32 @@ public class PollyService {
 
         return s3Client.getUrl(bucketName, key).toExternalForm();
     }
+
+    public ResponseEntity<Resource> getAudio(String bucketName, String key) {
+        byte[] content = getAudioContent(bucketName, key);
+        return buildResponse(content);
+    }
+
+    private byte[] getAudioContent(String bucketName, String key) {
+        AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withRegion(Regions.AP_NORTHEAST_2).build();
+        GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, key);
+        S3Object s3Object = s3Client.getObject(getObjectRequest);
+
+        try (S3ObjectInputStream s3ObjectInputStream = s3Object.getObjectContent()) {
+            return IOUtils.toByteArray(s3ObjectInputStream);
+        } catch (IOException e) {
+            throw new RuntimeException("S3에서 파일을 불러오는데 실패하였습니다", e);
+        }
+    }
+
+    private ResponseEntity<Resource> buildResponse(byte[] content) {
+        ByteArrayResource resource = new ByteArrayResource(content);
+
+        return ResponseEntity.ok()
+                .contentLength(content.length)
+                .contentType(MediaType.parseMediaType("audio/mpeg"))
+                .body(resource);
+    }
+
+
 }
