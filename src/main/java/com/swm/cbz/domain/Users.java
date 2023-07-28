@@ -12,10 +12,10 @@ import java.util.Set;
 @Setter
 @Entity
 @Table
-public class User {
+public class Users {
     @Id
-    @Column(name="user_id")
-    private String userId;
+    @Column(name="users_id")
+    private String usersId;
 
     @Column
     private String name;
@@ -38,9 +38,9 @@ public class User {
     @Column
     private Date createdAt;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserVideo> userVideos = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Evaluation> evaluations = new HashSet<>();
 }

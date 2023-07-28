@@ -1,10 +1,9 @@
 package com.swm.cbz.service;
 
-import com.swm.cbz.domain.User;
+import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.repository.UserRepository;
 import com.swm.cbz.repository.VideoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +18,7 @@ public class VideoService {
     private TranscriptService transcriptService;
 
     public ResponseEntity<Video> uploadVideo(String username, String link){
-        Optional<User> userOptional = userService.searchUserById(username);
+        Optional<Users> userOptional = userService.searchUserById(username);
         if(!userOptional.isPresent()){
             throw new EntityNotFoundException("유저를 찾을 수 없습니다.");
         }
