@@ -1,6 +1,6 @@
 package com.swm.cbz.service;
 
-import com.swm.cbz.domain.User;
+import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.UserVideo;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.dto.UserVideoResponseDTO;
@@ -23,12 +23,12 @@ public class UserService {
         this.userVideoRepository = userVideoRepository;
     }
 
-    public Optional<User> searchUserById(String userId) {
+    public Optional<Users> searchUserById(String userId) {
         return userRepository.findById(userId);
     }
 
     public UserVideoResponseDTO getVideosByUserId(Long userId) {
-        List<UserVideo> userVideos = userVideoRepository.findByUserId(userId);
+        List<UserVideo> userVideos = userVideoRepository.findByUsersUsersId(userId);
         List<Video> videos = userVideos.stream()
                 .map(UserVideo::getVideo)
                 .collect(Collectors.toList());

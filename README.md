@@ -10,7 +10,7 @@
 
 | 박현정 | 김태오 |
 | :---------:|:----------:|
-|<img width="300" alt="image" src="https://user-images.githubusercontent.com/81394850/210358708-f6139bed-c2b6-43d9-8dc6-525ac8c68e9f.jpg"> | <img width="300" alt="image" src="https://github.com/codingbongbongz/Backend/assets/81394850/e593d345-2bc7-4b41-ae77-fea9157376fe"> | 
+|<img width="300" alt="image" src="https://users-images.githubusercontent.com/81394850/210358708-f6139bed-c2b6-43d9-8dc6-525ac8c68e9f.jpg"> | <img width="300" alt="image" src="https://github.com/codingbongbongz/Backend/assets/81394850/e593d345-2bc7-4b41-ae77-fea9157376fe"> | 
 | [hyeonjeongs](https://github.com/hyeonjeongs) | [ysbc1247](https://github.com/ysbc1247) |
 
 
@@ -29,7 +29,7 @@
 - ♻️ `[refactor]` : 전면 수정
 - 🔀 `[merge]`: 다른 브랜치와 병합
 
-ex) `commit -m "{#issue number} [feat] user API 구현”`
+ex) `commit -m "{#issue number} [feat] users API 구현”`
 
 ### ✔️ Branch Convention
 
@@ -40,7 +40,7 @@ ex) `commit -m "{#issue number} [feat] user API 구현”`
 - [modify] : 코드 수정 (기능의 변화가 있을 때)
 - [chore] : gradle 세팅, 위의 것 이외에 거의 모든 것
 
-ex) `feat/#1-user-api`
+ex) `feat/#1-users-api`
 
 ### Git Flow
 

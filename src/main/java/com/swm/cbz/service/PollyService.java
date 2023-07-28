@@ -32,15 +32,19 @@ public class PollyService {
     private String defaultKey;
     private TranscriptRepository transcriptRepository;
     private final AmazonPolly pollyClient;
-    private AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-            .withRegion(Regions.AP_NORTHEAST_2)
-            .build();
+    private AmazonS3 s3Client;
 
 
     @Autowired
     public PollyService(AWSConfig awsConfig, TranscriptRepository transcriptRepository) throws IOException {
-        this.pollyClient = AmazonPollyClientBuilder.defaultClient();
-        this.s3Client = AmazonS3ClientBuilder.defaultClient();
+        this.pollyClient = AmazonPollyClientBuilder.standard()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .build();
+
+        this.s3Client = AmazonS3ClientBuilder.standard()
+                .withRegion(Regions.AP_NORTHEAST_2) // Specify your region here.
+                .build();
+
         this.bucketName = awsConfig.getBucketName();
         this.defaultKey = awsConfig.getDefaultKey();
         this.transcriptRepository = transcriptRepository;

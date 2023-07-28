@@ -24,7 +24,7 @@ public class PollyController {
 
     @GetMapping("/videos/{videoId}/transcripts/{transcriptId}/audio")
     public ResponseEntity<Resource> getTranscriptAudio(@PathVariable("videoId") Long videoId, @PathVariable("transcriptId") Long transcriptId) {
-        Transcript transcript = transcriptRepository.findByIdAndVideoId(transcriptId, videoId)
+        Transcript transcript = transcriptRepository.findByTranscriptIdAndVideoVideoId(transcriptId, videoId)
                 .orElseThrow(() -> new EntityNotFoundException("Transcript not found with id " + transcriptId + " for video id " + videoId));
 
         String audioKey = transcript.getSoundLink();

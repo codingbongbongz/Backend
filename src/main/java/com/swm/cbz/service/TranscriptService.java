@@ -1,7 +1,7 @@
 package com.swm.cbz.service;
 
 import com.swm.cbz.domain.Transcript;
-import com.swm.cbz.domain.User;
+import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.UserVideo;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.dto.TranscriptDTO;
@@ -47,11 +47,11 @@ public class TranscriptService {
     }
 
     public ResponseEntity<Video> fetchTranscripts(String link, String username) {
-        Optional<User> userOptional = userRepository.findById(username);
+        Optional<Users> userOptional = userRepository.findById(username);
         if (userOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        User user = userOptional.get();
+        Users users = userOptional.get();
 
         try {
             List<Map> transcriptDataList = webClient.get()
@@ -86,7 +86,7 @@ public class TranscriptService {
             video.setTranscripts(transcriptList);
             UserVideo userVideo = new UserVideo();
             userVideo.setVideo(video);
-            userVideo.setUser(user);
+            userVideo.setUsers(users);
             userVideoRepository.save(userVideo);
             videoRepository.save(video);
             return new ResponseEntity<>(video, HttpStatus.OK);
@@ -114,7 +114,7 @@ public class TranscriptService {
     }
 
     public TranscriptDTO getTranscriptByVideoIdAndTranscriptId(Long videoId, Long transcriptId) {
-        Optional<Transcript> optionalTranscript = transcriptRepository.findByIdAndVideoId(transcriptId, videoId);
+        Optional<Transcript> optionalTranscript = transcriptRepository.findByTranscriptIdAndVideoVideoId(transcriptId, videoId);
 
         if (!optionalTranscript.isPresent()) {
             throw new EntityNotFoundException("Transcript not found with id: " + transcriptId + " for video with id: " + videoId);

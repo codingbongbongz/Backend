@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @RepositoryRestResource
 public interface TranscriptRepository extends JpaRepository<Transcript, Long> {
-    Optional<Transcript> findByIdAndVideoId(Long transcriptId, Long videoId);
+    Optional<Transcript> findByTranscriptIdAndVideoVideoId(Long transcriptId, Long videoId);
 }
