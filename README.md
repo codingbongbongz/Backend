@@ -10,7 +10,7 @@
 
 | 박현정 | 김태오 |
 | :---------:|:----------:|
-|<img width="300" alt="image" src="https://users-images.githubusercontent.com/81394850/210358708-f6139bed-c2b6-43d9-8dc6-525ac8c68e9f.jpg"> | <img width="300" alt="image" src="https://github.com/codingbongbongz/Backend/assets/81394850/e593d345-2bc7-4b41-ae77-fea9157376fe"> | 
+|<img width="300" alt="image" src="https://user-images.githubusercontent.com/81394850/210358708-f6139bed-c2b6-43d9-8dc6-525ac8c68e9f.jpg"> | <img width="300" alt="image" src="https://github.com/codingbongbongz/Backend/assets/81394850/e593d345-2bc7-4b41-ae77-fea9157376fe"> | 
 | [hyeonjeongs](https://github.com/hyeonjeongs) | [ysbc1247](https://github.com/ysbc1247) |
 
 
