@@ -1,7 +1,7 @@
 package com.swm.cbz.service;
 
-import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.UserVideo;
+import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.dto.UserVideoResponseDTO;
 import com.swm.cbz.repository.UserRepository;

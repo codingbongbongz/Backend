@@ -1,8 +1,8 @@
 package com.swm.cbz.service;
 
 import com.swm.cbz.domain.Transcript;
-import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.UserVideo;
+import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.dto.TranscriptDTO;
 import com.swm.cbz.dto.TranscriptDataDTO;

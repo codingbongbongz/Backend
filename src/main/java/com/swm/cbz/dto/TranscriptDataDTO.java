@@ -1,6 +1,5 @@
 package com.swm.cbz.dto;
 
-import com.swm.cbz.domain.Transcript;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

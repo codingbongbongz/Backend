@@ -14,7 +14,6 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
 import com.swm.cbz.config.AWSConfig;
-import com.swm.cbz.domain.Transcript;
 import com.swm.cbz.repository.TranscriptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
