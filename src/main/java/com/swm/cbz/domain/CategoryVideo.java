@@ -1,5 +1,6 @@
 package com.swm.cbz.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,9 +18,11 @@ public class CategoryVideo {
 
     @ManyToOne
     @JoinColumn(name = "video_id", nullable = false)
+    @JsonBackReference
     private Video video;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
+    @JsonBackReference
     private Category category;
 }
