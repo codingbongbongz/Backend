@@ -1,5 +1,6 @@
 package com.swm.cbz.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,8 +40,10 @@ public class Users {
     private Date createdAt;
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<UserVideo> userVideos = new HashSet<>();
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<Evaluation> evaluations = new HashSet<>();
 }

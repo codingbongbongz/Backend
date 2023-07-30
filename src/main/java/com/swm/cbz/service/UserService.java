@@ -27,7 +27,7 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public UserVideoResponseDTO getVideosByUserId(Long userId) {
+    public UserVideoResponseDTO getVideosByUserId(String userId) {
         List<UserVideo> userVideos = userVideoRepository.findByUsersUsersId(userId);
         List<Video> videos = userVideos.stream()
                 .map(UserVideo::getVideo)
