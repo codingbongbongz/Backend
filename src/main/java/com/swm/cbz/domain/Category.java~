@@ -1,6 +1,5 @@
 package com.swm.cbz.domain;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +21,6 @@ public class Category {
     private String categoryName;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
     private Set<CategoryVideo> categoryVideos = new HashSet<>();
 
 }

@@ -1,5 +1,6 @@
 package com.swm.cbz.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,10 +40,12 @@ public class Evaluation {
 
     @ManyToOne
     @JoinColumn(name = "transcript_id", nullable = false)
+    @JsonBackReference
     private Transcript transcript;
 
     @ManyToOne
     @JoinColumn(name = "users_id", nullable = false)
+    @JsonBackReference
     private Users users;
 
 }

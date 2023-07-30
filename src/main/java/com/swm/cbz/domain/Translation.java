@@ -1,5 +1,6 @@
 package com.swm.cbz.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +24,6 @@ public class Translation {
 
     @ManyToOne
     @JoinColumn(name = "transcript_id", nullable = false)
+    @JsonBackReference
     private Transcript transcript;
 }
