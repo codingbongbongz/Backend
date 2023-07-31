@@ -1,6 +1,7 @@
 package com.swm.cbz.service;
 
 import com.swm.cbz.config.SpeechSuperClient;
+import com.swm.cbz.config.SpeechSuperConfig;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpEntity;
@@ -18,6 +19,7 @@ import org.apache.http.util.EntityUtils;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.jboss.jandex.Main;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.Yaml;
 
@@ -31,16 +33,16 @@ import java.util.Map;
 @Service
 public class SpeechSuperService {
     public static final String baseUrl = "wss://api.speechsuper.com/";
-    static Yaml yaml = new Yaml();
-    static InputStream inputStream = Main.class
-            .getClassLoader()
-            .getResourceAsStream("application.yaml");
-    static SpeechSuperClient config = yaml.loadAs(inputStream, SpeechSuperClient.class);
-    static Map<String, String> app = config.getApp();
 
-    static String appKey = app.get("key");
-    static String secretKey = app.get("secret");
-    public static String HttpAPI(byte[] audioData, String audioType, String audioSampleRate, String refText, String coreType) {
+    private final String appKey;
+    private final String secretKey;
+
+    @Autowired
+    public SpeechSuperService(SpeechSuperConfig speechSuperConfig) {
+        this.appKey = speechSuperConfig.getKey();
+        this.secretKey = speechSuperConfig.getSecret();
+    }
+    public String HttpAPI(byte[] audioData, String audioType, String audioSampleRate, String refText, String coreType) {
         String url = baseUrl + coreType;
         String userId = getRandomString(5);
         String res = null;
