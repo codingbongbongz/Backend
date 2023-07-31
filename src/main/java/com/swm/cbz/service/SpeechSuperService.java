@@ -152,7 +152,7 @@ public class SpeechSuperService {
 
 
     public String getEvaluation(String refText, byte[] audioData) {
-        String coreType = "word.eval";
+        String coreType = "sent.eval.kr";
         String audioType = "wav";
         String audioSampleRate = "16000";
 

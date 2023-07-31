@@ -28,7 +28,6 @@ public class SpeechSuperController {
         String sentence = transcriptDTO.getSentence();
         try {
             byte[] audioData = audioFile.getBytes();
-            String coreType = "sentence.eval";
             String result = speechSuperService.getEvaluation(sentence, audioData);
             return ResponseEntity.ok(result);
         } catch (IOException e) {
