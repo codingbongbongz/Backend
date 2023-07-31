@@ -1,4 +1,4 @@
-package com.swm.cbz.common;
+package com.swm.cbz.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
