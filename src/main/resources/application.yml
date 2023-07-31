@@ -21,8 +21,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/cbz?useSSL=true&useUnicode=true&serverTimezone=Asia/Seoul
-    username: cbz_server
-    password: cbzserver1234!
+    username: cbz
+    password: cbzse
 
   jpa:
     show-sql: true

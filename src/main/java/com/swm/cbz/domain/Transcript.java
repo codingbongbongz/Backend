@@ -1,5 +1,7 @@
 package com.swm.cbz.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,11 +33,14 @@ public class Transcript {
 
     @ManyToOne
     @JoinColumn(name = "video_id", nullable = false)
+    @JsonBackReference
     private Video video;
 
     @OneToMany(mappedBy = "transcript", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<Evaluation> promptTags = new HashSet<>();
 
     @OneToMany(mappedBy = "transcript", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private Set<Translation> translations = new HashSet<>();
 }
