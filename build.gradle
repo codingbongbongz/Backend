@@ -19,6 +19,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
 	implementation 'org.springframework.data:spring-data-rest-hal-explorer'
 	implementation 'org.webjars:webjars-locator-core'
 	implementation 'org.webjars:sockjs-client:1.0.2'
@@ -69,7 +71,7 @@ dependencies {
 	implementation 'org.java-websocket:Java-WebSocket:1.5.3'
 
 	//yaml parsing
-	implementation 'org.yaml:snakeyaml:2.0'
+	//implementation 'org.yaml:snakeyaml:2.0'
 
 	//HttpComponents
 	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
