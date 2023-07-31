@@ -18,7 +18,7 @@ public class Evaluation {
     private Long evaluationId;
 
     @Column
-    private Long score;
+    private Long overall;
 
     @Column
     private Long pronunciation;
