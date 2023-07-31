@@ -32,7 +32,7 @@ import java.util.Map;
 
 @Service
 public class SpeechSuperService {
-    public static final String baseUrl = "wss://api.speechsuper.com/";
+    public static final String baseUrl = "https://api.speechsuper.com/";
 
     private final String appKey;
     private final String secretKey;
@@ -54,7 +54,7 @@ public class SpeechSuperService {
             httppost.addHeader("Request-Index", "0");
 
             StringBody comment = new StringBody(params, ContentType.APPLICATION_JSON);
-
+            System.out.println(comment);
             ByteArrayBody bin = new ByteArrayBody(audioData, ContentType.create("audio/wav"), "audio");
             HttpEntity reqEntity = MultipartEntityBuilder.create().addPart("text", comment).addPart("audio", bin).build();
             httppost.setEntity(reqEntity);
@@ -157,7 +157,7 @@ public class SpeechSuperService {
         String coreType = "sent.eval.kr";
         String audioType = "wav";
         String audioSampleRate = "16000";
-
+        System.out.println(audioType);
         return HttpAPI(audioData, audioType, audioSampleRate, refText, coreType);
     }
 }

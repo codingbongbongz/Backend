@@ -26,6 +26,7 @@ public class SpeechSuperController {
     public ResponseEntity<String> getEvaluation(@RequestParam("audio") MultipartFile audioFile, @PathVariable Long videoId, @PathVariable Long transcriptId){
         TranscriptDTO transcriptDTO = transcriptController.getTranscriptById(videoId, transcriptId);
         String sentence = transcriptDTO.getSentence();
+        System.out.println(sentence);
         try {
             byte[] audioData = audioFile.getBytes();
             String result = speechSuperService.getEvaluation(sentence, audioData);
