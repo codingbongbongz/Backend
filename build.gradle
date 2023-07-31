@@ -65,6 +65,15 @@ dependencies {
 	//apache commons
 	implementation 'commons-io:commons-io:2.11.0'
 
+	//websocket
+	implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+
+	//yaml parsing
+	implementation 'org.yaml:snakeyaml:2.0'
+
+	//HttpComponents
+	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
+
 }
 
 tasks.named('test') {
