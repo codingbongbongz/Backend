@@ -49,3 +49,16 @@ VALUES (1, 1, 1),
        (4, 4, 4),
        (5, 5, 5);
 
+
+-- Insert dummy data into the `transcript` table
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(1, '안녕하세요', 0.00, 2.00, 1);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(2, '반갑습니다', 0.00, 2.00, 2);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(3, '오늘은 좋은 날', 0.00, 2.00, 3);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(4, '행복하세요', 0.00, 2.00, 4);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(5, '항상 웃음 가득한', 0.00, 2.00, 5);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(6, '이게 무슨 일이야?', 0.00, 2.00, 1);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(7, '나는 학생이다.', 0.00, 2.00, 2);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(8, '오늘은 비가 올 것 같아.', 0.00, 2.00, 3);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(9, '당신은 어떻게 지냈나요?', 0.00, 2.00, 4);
+INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(10, '잘 지냈습니다, 감사합니다.', 0.00, 2.00, 5);
+

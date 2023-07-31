@@ -19,6 +19,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
 	implementation 'org.springframework.data:spring-data-rest-hal-explorer'
 	implementation 'org.webjars:webjars-locator-core'
 	implementation 'org.webjars:sockjs-client:1.0.2'
@@ -54,7 +56,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	// Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	//implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'io.netty:netty-resolver-dns-native-macos:4.1.79.Final:osx-aarch_64'
 
 	//amazon polly dependencies
@@ -64,6 +66,15 @@ dependencies {
 
 	//apache commons
 	implementation 'commons-io:commons-io:2.11.0'
+
+	//websocket
+	implementation 'org.java-websocket:Java-WebSocket:1.5.3'
+
+	//yaml parsing
+	//implementation 'org.yaml:snakeyaml:2.0'
+
+	//HttpComponents
+	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
 
 }
 
