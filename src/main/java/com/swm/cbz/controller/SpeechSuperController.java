@@ -1,5 +1,6 @@
 package com.swm.cbz.controller;
 
+import com.swm.cbz.domain.Evaluation;
 import com.swm.cbz.dto.TranscriptDTO;
 import com.swm.cbz.service.SpeechSuperService;
 import org.springframework.http.ResponseEntity;
@@ -23,17 +24,15 @@ public class SpeechSuperController {
     }
 
     @PostMapping("/videos/{videoId}/transcripts/{transcriptId}/audio")
-    public ResponseEntity<String> getEvaluation(@RequestParam("audio") MultipartFile audioFile, @PathVariable Long videoId, @PathVariable Long transcriptId){
+    public ResponseEntity<Evaluation> getEvaluation(@RequestParam("audio") MultipartFile audioFile, @RequestParam("userId") String userId, @PathVariable Long videoId, @PathVariable Long transcriptId){
         TranscriptDTO transcriptDTO = transcriptController.getTranscriptById(videoId, transcriptId);
         String sentence = transcriptDTO.getSentence();
-        System.out.println(sentence);
         try {
             byte[] audioData = audioFile.getBytes();
-            String result = speechSuperService.getEvaluation(sentence, audioData);
-            return ResponseEntity.ok(result);
+            return speechSuperService.getEvaluation(userId, transcriptId, sentence, audioData);
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body("Could not read audio file");
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }
