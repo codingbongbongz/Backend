@@ -25,17 +25,16 @@ import static com.swm.cbz.common.response.ErrorMessage.NOT_FOUND_USER_EXCEPTION;
 @Service
 @RequiredArgsConstructor
 public class VideoService {
-    private VideoRepository videoRepository;
-    private UserRepository userRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private TranscriptService transcriptService;
+    private final VideoRepository videoRepository;
+    private final UserRepository userRepository;
+
+    private final UserService userService;
+
+    private final TranscriptService transcriptService;
 
     public ResponseEntity<Video> uploadVideo(Long userId, String link){
         Optional<Users> userOptional = userService.searchUserById(userId);
         if(!userOptional.isPresent()){
-            System.out.println("error");
             throw new EntityNotFoundException("유저를 찾을 수 없습니다.");
         }
         return transcriptService.fetchTranscripts(link, userOptional.get().getUserId());
