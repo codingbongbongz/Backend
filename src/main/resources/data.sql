@@ -1,11 +1,11 @@
 -- users dummy data
 INSERT INTO users (users_id, name, password, email, nickname, country, social, created_at)
 VALUES
-    ('users', 'John Doe', 'password', 'john.doe@example.com', 'Johnny', 'USA', 'facebook', '2023-07-29 00:00:00'),
-    ('dummy', 'Jane Smith', 'password', 'jane.smith@example.com', 'Janny', 'Canada', 'linkedin', '2023-07-29 00:00:00');
+    ('1', 'John Doe', 'password', 'john.doe@example.com', 'Johnny', 'USA', 'facebook', '2023-07-29 00:00:00'),
+    ('2', 'Jane Smith', 'password', 'jane.smith@example.com', 'Janny', 'Canada', 'linkedin', '2023-07-29 00:00:00');
 
 
--- video dummy data
+-- video 2 data
 INSERT INTO video (video_id, link, video_title, creator, duration, is_default, views, youtube_views, created_at)
 VALUES
     (1, 'https://www.example.com/video1', 'Video Title 1', 'Creator 1', 100, false, 1000, 10000, '2023-08-01 00:00:00'),
@@ -19,18 +19,18 @@ VALUES
     (9, 'https://www.example.com/video9', 'Video Title 9', 'Creator 9', 900, false, 9000, 90000, '2023-08-01 00:00:00'),
     (10, 'https://www.example.com/video10', 'Video Title 10', 'Creator 10', 1000, false, 10000, 100000, '2023-08-01 00:00:00');
 
--- user_video dummy data
+-- user_video 2 data
 INSERT INTO User_Video (uservideo_id, created_at, updated_at, video_id, users_id) VALUES
-                                                                                      (1, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 1, 'dummy'),
-                                                                                      (2, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 2, 'dummy'),
-                                                                                      (3, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 3, 'dummy'),
-                                                                                      (4, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 4, 'dummy'),
-                                                                                      (5, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 5, 'dummy'),
-                                                                                      (6, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 1, 'users'),
-                                                                                      (7, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 2, 'users'),
-                                                                                      (8, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 3, 'users'),
-                                                                                      (9, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 4, 'users'),
-                                                                                      (10, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 5, 'users');
+                                                                                      (1, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 1, '2'),
+                                                                                      (2, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 2, '2'),
+                                                                                      (3, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 3, '2'),
+                                                                                      (4, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 4, '2'),
+                                                                                      (5, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 5, '2'),
+                                                                                      (6, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 1, '1'),
+                                                                                      (7, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 2, '1'),
+                                                                                      (8, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 3, '1'),
+                                                                                      (9, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 4, '1'),
+                                                                                      (10, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 5, '1');
 
 
 -- Category Data
@@ -50,7 +50,7 @@ VALUES (1, 1, 1),
        (5, 5, 5);
 
 
--- Insert dummy data into the `transcript` table
+-- Insert 2 data into the `transcript` table
 INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(1, '안녕하세요', 0.00, 2.00, 1);
 INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(2, '반갑습니다', 0.00, 2.00, 2);
 INSERT INTO transcript(transcript_id, sentence, start, duration, video_id) VALUES(3, '오늘은 좋은 날', 0.00, 2.00, 3);

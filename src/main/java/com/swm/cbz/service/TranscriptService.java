@@ -46,8 +46,8 @@ public class TranscriptService {
                 .build();
     }
 
-    public ResponseEntity<Video> fetchTranscripts(String link, String username) {
-        Optional<Users> userOptional = userRepository.findById(username);
+    public ResponseEntity<Video> fetchTranscripts(String link, Long userId) {
+        Optional<Users> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
