@@ -1,12 +1,13 @@
 package com.swm.cbz.controller;
 
+import com.swm.cbz.common.response.ApiResponse;
+import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.dto.LinkUploadDTO;
+import com.swm.cbz.dto.video.response.PopularVideoResponseDTO;
 import com.swm.cbz.service.VideoService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class VideoController {
@@ -22,5 +23,13 @@ public class VideoController {
         String link = linkUploadDTO.getLink();
         String username = linkUploadDTO.getUsername();
         return videoService.uploadVideo(username, link);
+    }
+
+    @GetMapping("/videos/popular")
+    public ApiResponse<PopularVideoResponseDTO> getPopularVideo(
+            @RequestHeader Long userId
+    ) {
+        PopularVideoResponseDTO data = videoService.getPopularVideo(userId);
+        return ApiResponse.success(SuccessMessage.GET_POPULAR_VIDEO_SUCCESS, data);
     }
 }

@@ -162,7 +162,7 @@ public class SpeechSuperService {
     }
 
 
-    public  ResponseEntity<Map<String, Object>>  getEvaluation(String userId, Long transcriptId, String refText, byte[] audioData) {
+    public  ResponseEntity<Map<String, Object>>  getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
         String coreType = "sent.eval.kr";
         String audioType = "wav";
         String audioSampleRate = "16000";

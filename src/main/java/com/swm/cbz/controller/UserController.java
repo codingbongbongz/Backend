@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @GetMapping("/videos/{userId}")
-    public ResponseEntity<UserVideoResponseDTO> getVideosByUserId(@PathVariable String userId) {
+    public ResponseEntity<UserVideoResponseDTO> getVideosByUserId(@PathVariable Long userId) {
         UserVideoResponseDTO response = userService.getVideosByUserId(userId);
         return ResponseEntity.ok(response);
     }

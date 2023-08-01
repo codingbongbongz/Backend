@@ -2,6 +2,7 @@ package com.swm.cbz.common.exception;
 
 import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.controller.exception.BadRequestException;
+import com.swm.cbz.controller.exception.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -19,6 +20,13 @@ public class ControllerExceptionAdvice {
     })
     public ResponseEntity<ApiResponse> BadRequestException(BaseException exception) {
         return ResponseEntity.status(BAD_REQUEST).body(ApiResponse.error(exception.getError(), exception.getMessage()));
+    }
+
+    @ExceptionHandler({
+            NotFoundException.class
+    })
+    public ResponseEntity<ApiResponse> NotFoundException(BaseException exception) {
+        return ResponseEntity.status(NOT_FOUND).body(ApiResponse.error(exception.getError(), exception.getMessage()));
     }
 
     /**
