@@ -7,6 +7,6 @@ import lombok.Setter;
 @Setter
 public class LinkUploadDTO {
 
-    private String username;
+    private Long userId;
     private String link;
 }
