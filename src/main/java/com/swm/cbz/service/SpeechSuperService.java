@@ -29,6 +29,8 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class SpeechSuperService {
@@ -103,7 +105,7 @@ public class SpeechSuperService {
         String startSigStr = appkey + timeStartMillis + userId + secretKey;
         String startSig = Hex.encodeHexString(digest.digest(startSigStr.getBytes()));
         //request param
-        String params = "{"
+        return "{"
                 + "\"connect\":{"
                 + "\"cmd\":\"connect\","
                 + "\"param\":{"
@@ -142,7 +144,6 @@ public class SpeechSuperService {
                 + "}"
                 + "}"
                 + "}";
-        return params;
     }
 
 
@@ -161,7 +162,7 @@ public class SpeechSuperService {
     }
 
 
-    public ResponseEntity<Evaluation> getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
+    public  ResponseEntity<Map<String, Object>>  getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
         String coreType = "sent.eval.kr";
         String audioType = "wav";
         String audioSampleRate = "16000";
@@ -181,7 +182,14 @@ public class SpeechSuperService {
             userRepository.findById(userId).ifPresent(evaluation::setUsers);
             transcriptRepository.findById(transcriptId).ifPresent(evaluation::setTranscript);
             evaluationRepository.save(evaluation);
-            return new ResponseEntity<>(evaluation, HttpStatus.OK);
+            Map<String, Object> data = new HashMap<>();
+            data.put("userId", userId);
+            data.put("transcriptId", transcriptId);
+            data.put("evaluation", evaluation);
+
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("message", "조회 성공하였습니다.");
+            responseBody.put("data", data);
         } catch (IOException e) {
             e.printStackTrace();
         }
