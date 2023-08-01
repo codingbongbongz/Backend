@@ -24,7 +24,7 @@ public class SpeechSuperController {
     }
 
     @PostMapping("/videos/{videoId}/transcripts/{transcriptId}/audio")
-    public ResponseEntity<Evaluation> getEvaluation(@RequestParam("audio") MultipartFile audioFile, @RequestParam("userId") String userId, @PathVariable Long videoId, @PathVariable Long transcriptId){
+    public ResponseEntity<Evaluation> getEvaluation(@RequestParam("audio") MultipartFile audioFile, @RequestParam("userId") Long userId, @PathVariable Long videoId, @PathVariable Long transcriptId){
         TranscriptDTO transcriptDTO = transcriptController.getTranscriptById(videoId, transcriptId);
         String sentence = transcriptDTO.getSentence();
         try {

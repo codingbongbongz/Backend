@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -24,6 +25,7 @@ public enum SuccessMessage {
      * video
      */
     CREATE_VIDEO_SUCCESS(CREATED, "비디오 생성에 성공했습니다."),
+    GET_POPULAR_VIDEO_SUCCESS(OK, "인기 동영상 조회에 성공했습니다."),
     ;
 
     private final HttpStatus httpStatus;
