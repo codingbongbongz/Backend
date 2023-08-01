@@ -47,6 +47,7 @@ public class TranscriptService {
     }
 
     public ResponseEntity<Video> fetchTranscripts(String link, String username) {
+        System.out.println(username);
         Optional<Users> userOptional = userRepository.findById(username);
         if (userOptional.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -60,7 +61,6 @@ public class TranscriptService {
                     .bodyToFlux(Map.class)
                     .collectList()
                     .block();
-
             Video video = new Video();
             video.setLink(link);
             List<Transcript> transcriptList = new ArrayList<>();
@@ -72,46 +72,46 @@ public class TranscriptService {
                         transcript.setSentence((String) transcriptMap.get("text"));
                         transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
                         transcript.setDuration(((Number) transcriptMap.get("duration")).doubleValue());
-                        String base64Audio = (String) transcriptMap.get("audio");
-                        byte[] audioBytes = null;
-                        if (base64Audio != null) {
-                            audioBytes = Base64.getDecoder().decode(base64Audio);
-                        }
-                        transcript.setSoundLink(pollyService.synthesizeAndStore((String) transcriptMap.get("text")));
+                        //String base64Audio = (String) transcriptMap.get("audio");
+                        //byte[] audioBytes = null;
+                        //if (base64Audio != null) {
+                        //    audioBytes = Base64.getDecoder().decode(base64Audio);
+                        //}
+                        //transcript.setSoundLink(pollyService.synthesizeAndStore((String) transcriptMap.get("text")));
                         transcript.setVideo(video);
                         transcriptList.add(transcript);
                     }
                 }
             }
             video.setTranscripts(transcriptList);
+            videoRepository.save(video);
             UserVideo userVideo = new UserVideo();
             userVideo.setVideo(video);
             userVideo.setUsers(users);
             userVideoRepository.save(userVideo);
-            videoRepository.save(video);
             return new ResponseEntity<>(video, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    public TranscriptResponseDTO  getTranscriptsByVideoId(Long videoId) {Optional<Video> optionalVideo = videoRepository.findById(videoId);
-        if (!optionalVideo.isPresent()) {
-           return new TranscriptResponseDTO("자막 조회에 실패하였습니다.", null);
-        }
 
-        Video video = optionalVideo.get();
-        video.setViews(video.getViews()+1);
-        videoRepository.save(video);
+    private static final String TRANSCRIPTS_NOT_FOUND = "자막 조회에 실패하였습니다.";
+    private static final String TRANSCRIPTS_FOUND = "자막 조회 성공하였습니다.";
 
-        List<Transcript> transcripts = video.getTranscripts();
-
-        List<TranscriptDTO> transcriptDtos = transcripts.stream()
-                .map(t -> new TranscriptDTO(t.getTranscriptId(), t.getSentence(), t.getStart(), t.getDuration()))
-                .collect(Collectors.toList());
-
-        TranscriptDataDTO data = new TranscriptDataDTO(videoId, transcriptDtos);
-        return new TranscriptResponseDTO("자막 조회 성공하였습니다.", data);
+    public TranscriptResponseDTO getTranscriptsByVideoId(Long videoId) {
+        return videoRepository.findById(videoId)
+                .map(video -> {
+                    video.setViews(video.getViews() + 1);
+                    videoRepository.save(video);
+                    List<TranscriptDTO> transcriptDtos = video.getTranscripts().stream()
+                            .map(t -> new TranscriptDTO(t.getTranscriptId(), t.getSentence(), t.getStart(), t.getDuration()))
+                            .collect(Collectors.toList());
+                    TranscriptDataDTO data = new TranscriptDataDTO(videoId, transcriptDtos);
+                    return new TranscriptResponseDTO(TRANSCRIPTS_FOUND, data);
+                })
+                .orElseThrow(() -> new EntityNotFoundException(TRANSCRIPTS_NOT_FOUND));
     }
+
 
     public TranscriptDTO getTranscriptByVideoIdAndTranscriptId(Long videoId, Long transcriptId) {
         Optional<Transcript> optionalTranscript = transcriptRepository.findByTranscriptIdAndVideoVideoId(transcriptId, videoId);

@@ -21,6 +21,6 @@ public class VideoController {
     public ResponseEntity<Video> uploadVideo(@RequestBody LinkUploadDTO linkUploadDTO){
         String link = linkUploadDTO.getLink();
         String username = linkUploadDTO.getUsername();
-        return videoService.uploadVideo(link, username);
+        return videoService.uploadVideo(username, link);
     }
 }
