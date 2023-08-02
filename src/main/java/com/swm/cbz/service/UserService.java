@@ -1,5 +1,6 @@
 package com.swm.cbz.service;
 
+import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.controller.exception.NotFoundException;
 import com.swm.cbz.domain.UserVideo;
 import com.swm.cbz.domain.Users;
@@ -43,4 +44,5 @@ public class UserService {
         responseDTO.setData(videos);
         return responseDTO;
     }
+
 }

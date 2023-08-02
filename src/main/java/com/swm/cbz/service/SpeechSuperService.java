@@ -1,6 +1,9 @@
 package com.swm.cbz.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swm.cbz.common.response.ApiResponse;
+import com.swm.cbz.common.response.ErrorMessage;
+import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.config.SpeechSuperConfig;
 import com.swm.cbz.domain.Evaluation;
 import com.swm.cbz.dto.SpeechSuperResponse;
@@ -52,6 +55,7 @@ public class SpeechSuperService {
         this.transcriptRepository = transcriptRepository;
         this.userRepository = userRepository;
     }
+
     public String HttpAPI(byte[] audioData, String audioType, String audioSampleRate, String refText, String coreType) {
         String url = baseUrl + coreType;
         String userId = getRandomString(5);
@@ -162,7 +166,7 @@ public class SpeechSuperService {
     }
 
 
-    public  ResponseEntity<Map<String, Object>>  getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
+    public ApiResponse<Map<String, Object>> getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
         String coreType = "sent.eval.kr";
         String audioType = "wav";
         String audioSampleRate = "16000";
@@ -190,9 +194,10 @@ public class SpeechSuperService {
             Map<String, Object> responseBody = new HashMap<>();
             responseBody.put("message", "조회 성공하였습니다.");
             responseBody.put("data", data);
+            return ApiResponse.success(SuccessMessage.EVALUATION_SUCCESS, responseBody);
         } catch (IOException e) {
             e.printStackTrace();
+            return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

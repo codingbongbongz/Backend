@@ -13,7 +13,10 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
+import com.swm.cbz.common.response.ApiResponse;
+import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.config.AWSConfig;
+import com.swm.cbz.domain.Transcript;
 import com.swm.cbz.repository.TranscriptRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -22,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.*;
 import java.util.UUID;
 
@@ -77,9 +81,17 @@ public class PollyService {
         return s3Client.getUrl(bucketName, key).toExternalForm();
     }
 
-    public ResponseEntity<Resource> getAudio(String bucketName, String key) {
-        byte[] content = getAudioContent(bucketName, key);
-        return buildResponse(content);
+    public ApiResponse<Resource> getTranscriptAudio(Long videoId, Long transcriptId) {
+        Transcript transcript = transcriptRepository.findByTranscriptIdAndVideoVideoId(transcriptId, videoId)
+                .orElseThrow(() -> new EntityNotFoundException("Transcript not found with id " + transcriptId + " for video id " + videoId));
+
+        String audioKey = transcript.getSoundLink();
+        String bucketName = "bucket name";
+        byte[] content = getAudioContent(bucketName, audioKey);
+
+        ByteArrayResource resource = new ByteArrayResource(content);
+
+        return ApiResponse.success(SuccessMessage.GET_TRANSCRIPT_AUDIO_SUCCESS, resource);
     }
 
     private byte[] getAudioContent(String bucketName, String key) {
@@ -94,14 +106,6 @@ public class PollyService {
         }
     }
 
-    private ResponseEntity<Resource> buildResponse(byte[] content) {
-        ByteArrayResource resource = new ByteArrayResource(content);
-
-        return ResponseEntity.ok()
-                .contentLength(content.length)
-                .contentType(MediaType.parseMediaType("audio/mpeg"))
-                .body(resource);
-    }
 
 
 }

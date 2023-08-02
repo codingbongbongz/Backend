@@ -28,8 +28,17 @@ public enum ErrorMessage {
      */
 
 
-    ;
+    /**
+     * server
+     */
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "내부 서버 오류가 발생했습니다."),
 
+
+    /**
+     * transcript
+     */
+
+    TRANSCRIPT_NOT_FOUND(NOT_FOUND, "자막을 찾을 수 없습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 

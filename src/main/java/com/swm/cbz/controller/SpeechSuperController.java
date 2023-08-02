@@ -1,5 +1,7 @@
 package com.swm.cbz.controller;
 
+import com.swm.cbz.common.response.ApiResponse;
+import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.domain.Evaluation;
 import com.swm.cbz.dto.TranscriptDTO;
 import com.swm.cbz.service.SpeechSuperService;
@@ -25,16 +27,16 @@ public class SpeechSuperController {
     }
 
     @PostMapping("/videos/{videoId}/transcripts/{transcriptId}/audio")
-    public ResponseEntity<Map<String, Object>>  getEvaluation(@RequestParam("audio") MultipartFile audioFile, @RequestParam("userId") Long userId, @PathVariable Long videoId, @PathVariable Long transcriptId){
-
-        TranscriptDTO transcriptDTO = transcriptController.getTranscriptById(videoId, transcriptId);
+    public ApiResponse<Map<String, Object>> getEvaluation(@RequestParam("audio") MultipartFile audioFile, @RequestParam("userId") Long userId, @PathVariable Long videoId, @PathVariable Long transcriptId) {
+        TranscriptDTO transcriptDTO = transcriptController.getTranscriptById(videoId, transcriptId).getData();
         String sentence = transcriptDTO.getSentence();
         try {
             byte[] audioData = audioFile.getBytes();
             return speechSuperService.getEvaluation(userId, transcriptId, sentence, audioData);
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
+            return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

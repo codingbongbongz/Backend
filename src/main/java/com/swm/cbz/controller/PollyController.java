@@ -1,5 +1,6 @@
 package com.swm.cbz.controller;
 
+import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.domain.Transcript;
 import com.swm.cbz.repository.TranscriptRepository;
 import com.swm.cbz.service.PollyService;
@@ -23,12 +24,8 @@ public class PollyController {
     }
 
     @GetMapping("/videos/{videoId}/transcripts/{transcriptId}/audio")
-    public ResponseEntity<Resource> getTranscriptAudio(@PathVariable("videoId") Long videoId, @PathVariable("transcriptId") Long transcriptId) {
-        Transcript transcript = transcriptRepository.findByTranscriptIdAndVideoVideoId(transcriptId, videoId)
-                .orElseThrow(() -> new EntityNotFoundException("Transcript not found with id " + transcriptId + " for video id " + videoId));
-
-        String audioKey = transcript.getSoundLink();
-        String bucketName = "bucket name";
-        return pollyService.getAudio(bucketName, audioKey);
+    public ApiResponse<Resource> getTranscriptAudio(@PathVariable("videoId") Long videoId, @PathVariable("transcriptId") Long transcriptId) {
+        return pollyService.getTranscriptAudio(videoId, transcriptId);
     }
+
 }
