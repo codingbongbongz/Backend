@@ -47,10 +47,10 @@ public class TranscriptService {
     }
 
 
-    public ResponseEntity<Video> fetchTranscripts(String link, Long userId) {
+    public Video fetchTranscripts(String link, Long userId) throws Exception {
         Optional<Users> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new EntityNotFoundException("유저를 찾을 수 없습니다.");
         }
         Users users = userOptional.get();
 
@@ -89,9 +89,9 @@ public class TranscriptService {
             userVideo.setVideo(video);
             userVideo.setUsers(users);
             userVideoRepository.save(userVideo);
-            return new ResponseEntity<>(video, HttpStatus.OK);
+            return video;
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new Exception("An error occurred while processing the transcripts", e);
         }
     }
 
@@ -109,7 +109,7 @@ public class TranscriptService {
                     TranscriptDataDTO data = new TranscriptDataDTO(videoId, transcriptDtos);
                     return new TranscriptResponseDTO(TRANSCRIPTS_FOUND, data);
                 })
-                .orElseThrow(() -> new EntityNotFoundException(TRANSCRIPTS_NOT_FOUND));
+                .orElseThrow(() -> new EntityNotFoundException("Transcripts not found for video with id: " + videoId));
     }
 
 
@@ -122,4 +122,5 @@ public class TranscriptService {
         Transcript transcript = optionalTranscript.get();
         return new TranscriptDTO(transcript.getTranscriptId(), transcript.getSentence(), transcript.getStart(), transcript.getDuration());
     }
+
 }
