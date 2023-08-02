@@ -18,6 +18,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,52 +49,81 @@ public class TranscriptService {
 
 
     public Video fetchTranscripts(String link, Long userId) throws Exception {
-        Optional<Users> userOptional = userRepository.findById(userId);
-        if (userOptional.isEmpty()) {
-            throw new EntityNotFoundException("유저를 찾을 수 없습니다.");
-        }
-        Users users = userOptional.get();
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
 
+        List<Map> youtubeData;
         try {
-            List<Map> transcriptDataList = webClient.get()
+            youtubeData = webClient.get()
                     .uri("/transcripts/" + link)
                     .retrieve()
                     .bodyToFlux(Map.class)
                     .collectList()
                     .block();
-            Video video = new Video();
-            video.setLink(link);
-            List<Transcript> transcriptList = new ArrayList<>();
-            for (Map transcriptData : transcriptDataList) {
-                List<Map<String, Object>> transcripts = (List<Map<String, Object>>) transcriptData.get("transcripts");
-                if (transcripts != null) {
-                    for (Map<String, Object> transcriptMap : transcripts) {
-                        Transcript transcript = new Transcript();
-                        transcript.setSentence((String) transcriptMap.get("text"));
-                        transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
-                        transcript.setDuration(((Number) transcriptMap.get("duration")).doubleValue());
-                        //String base64Audio = (String) transcriptMap.get("audio");
-                        //byte[] audioBytes = null;
-                        //if (base64Audio != null) {
-                        //    audioBytes = Base64.getDecoder().decode(base64Audio);
-                        //}
-                        //transcript.setSoundLink(pollyService.synthesizeAndStore((String) transcriptMap.get("text")));
-                        transcript.setVideo(video);
-                        transcriptList.add(transcript);
-                    }
+        } catch (Exception e) {
+            throw new Exception("An error occurred while retrieving the transcripts", e);
+        }
+
+        Video video = createVideo(link, youtubeData);
+        videoRepository.save(video);
+
+        UserVideo userVideo = new UserVideo();
+        userVideo.setVideo(video);
+        userVideo.setUsers(user);
+        userVideoRepository.save(userVideo);
+
+        return video;
+    }
+
+    private Video createVideo(String link, List<Map> youtubeData) {
+        Video video = new Video();
+        video.setLink(link);
+
+        if (youtubeData != null && !youtubeData.isEmpty()) {
+            Map<String, Object> details = youtubeData.get(0);
+
+            video.setVideoTitle((String) details.get("title"));
+            video.setCreator((String) details.get("creator"));
+            Object durationObject = details.get("duration");
+            if (durationObject != null) {
+                String durationString = durationObject.toString();
+                long durationInSeconds = Long.parseLong(durationString);
+                video.setDuration(durationInSeconds);
+            }
+
+            Object youtubeViews = details.get("viewCount");
+            if (youtubeViews != null) {
+                String youtubeViewsString = youtubeViews.toString();
+                long youtubeViewsLong = Long.parseLong(youtubeViewsString);
+                video.setYoutubeViews(youtubeViewsLong);
+            }
+        }
+
+        List<Transcript> transcriptList = new ArrayList<>();
+        for (Map transcriptData : youtubeData) {
+            List<Map<String, Object>> transcripts = (List<Map<String, Object>>) transcriptData.get("transcripts");
+            if (transcripts != null) {
+                for (Map<String, Object> transcriptMap : transcripts) {
+                    Transcript transcript = createTranscript(transcriptMap, video);
+                    transcriptList.add(transcript);
                 }
             }
-            video.setTranscripts(transcriptList);
-            videoRepository.save(video);
-            UserVideo userVideo = new UserVideo();
-            userVideo.setVideo(video);
-            userVideo.setUsers(users);
-            userVideoRepository.save(userVideo);
-            return video;
-        } catch (Exception e) {
-            throw new Exception("An error occurred while processing the transcripts", e);
         }
+
+        video.setTranscripts(transcriptList);
+        return video;
     }
+
+
+    private Transcript createTranscript(Map<String, Object> transcriptMap, Video video) {
+        Transcript transcript = new Transcript();
+        transcript.setSentence((String) transcriptMap.get("text"));
+        transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
+        transcript.setDuration(((Number) transcriptMap.get("duration")).doubleValue());
+        transcript.setVideo(video);
+        return transcript;
+    }
+
 
     private static final String TRANSCRIPTS_NOT_FOUND = "자막 조회에 실패하였습니다.";
     private static final String TRANSCRIPTS_FOUND = "자막 조회 성공하였습니다.";
@@ -111,6 +141,8 @@ public class TranscriptService {
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Transcripts not found for video with id: " + videoId));
     }
+
+
 
 
     public TranscriptDTO getTranscriptByVideoIdAndTranscriptId(Long videoId, Long transcriptId) {
