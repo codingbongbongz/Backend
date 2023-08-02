@@ -1,5 +1,6 @@
 package com.swm.cbz.service;
 
+import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.controller.exception.NotFoundException;
@@ -32,12 +33,15 @@ public class VideoService {
 
     private final TranscriptService transcriptService;
 
-    public ResponseEntity<Video> uploadVideo(Long userId, String link){
-        Optional<Users> userOptional = userService.searchUserById(userId);
-        if(!userOptional.isPresent()){
-            throw new EntityNotFoundException("유저를 찾을 수 없습니다.");
+    public ApiResponse<Video> uploadVideo(Long userId, String link) {
+        try {
+            Video video = transcriptService.fetchTranscripts(link, userId);
+            return ApiResponse.success(SuccessMessage.CREATE_VIDEO_SUCCESS, video);
+        } catch (EntityNotFoundException e) {
+            return ApiResponse.error(ErrorMessage.NOT_FOUND_USER_EXCEPTION, e.getMessage());
+        } catch (Exception e) {
+            return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR, e.getMessage());
         }
-        return transcriptService.fetchTranscripts(link, userOptional.get().getUserId());
     }
 
     public PopularVideoResponseDTO getPopularVideo(Long userId) {
