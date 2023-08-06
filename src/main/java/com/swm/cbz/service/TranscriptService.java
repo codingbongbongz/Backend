@@ -11,14 +11,11 @@ import com.swm.cbz.repository.TranscriptRepository;
 import com.swm.cbz.repository.UserRepository;
 import com.swm.cbz.repository.UserVideoRepository;
 import com.swm.cbz.repository.VideoRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,21 +26,20 @@ public class TranscriptService {
     private final VideoRepository videoRepository;
     private final WebClient webClient;
 
-    private final PollyService pollyService;
+    private final S3Service s3Service;
     private final UserVideoRepository userVideoRepository;
     ExchangeStrategies strategies = ExchangeStrategies.builder()
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(2 * 1024 * 1024))
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(100 * 1024 * 1024))
             .build();
 
-    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, PollyService pollyService, UserVideoRepository userVideoRepository) {
+    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, S3Service s3Service, UserVideoRepository userVideoRepository) {
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
         this.transcriptRepository = transcriptRepository;
-        this.pollyService = pollyService;
+        this.s3Service = s3Service;
         this.userVideoRepository = userVideoRepository;
         this.webClient = WebClient.builder()
                 .exchangeStrategies(strategies)
-                .baseUrl("http://localhost:5000")  // Set your base URL accordingly
                 .build();
     }
 
@@ -55,7 +51,7 @@ public class TranscriptService {
         List<Map> youtubeData;
         try {
             youtubeData = webClient.get()
-                    .uri("/transcripts/" + link)
+                    .uri("http://localhost:5000/transcripts/" + link)
                     .retrieve()
                     .bodyToFlux(Map.class)
                     .collectList()
@@ -78,7 +74,9 @@ public class TranscriptService {
     private Video createVideo(String link, List<Map> youtubeData) {
         Video video = new Video();
         video.setLink(link);
-
+        video.setViews(0L);
+        video.setIsDefault(true);
+        video.setCreatedAt(new Date());
         if (youtubeData != null && !youtubeData.isEmpty()) {
             Map<String, Object> details = youtubeData.get(0);
 
@@ -120,6 +118,13 @@ public class TranscriptService {
         transcript.setSentence((String) transcriptMap.get("text"));
         transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
         transcript.setDuration(((Number) transcriptMap.get("duration")).doubleValue());
+        String audioBase64 = (String) transcriptMap.get("audio");
+        if (audioBase64 != null) {
+            byte[] audioBytes = Base64.getDecoder().decode(audioBase64);
+            String fileName = UUID.randomUUID().toString() + ".mp3";
+            String s3Url = s3Service.uploadAudio(audioBytes, fileName);
+            transcript.setSoundLink(s3Url);
+        }
         transcript.setVideo(video);
         return transcript;
     }
