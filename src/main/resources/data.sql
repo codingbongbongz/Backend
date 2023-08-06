@@ -20,7 +20,7 @@ VALUES
     (10, 'https://www.example.com/video10', 'Video Title 10', 'Creator 10', 1000, false, 10000, 100000, '2023-08-01 00:00:00');
 
 -- user_video 2 data
-INSERT INTO User_Video (uservideo_id, created_at, updated_at, video_id, users_id) VALUES
+INSERT INTO user_video (uservideo_id, created_at, updated_at, video_id, users_id) VALUES
                                                                                       (1, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 1, 1),
                                                                                       (2, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 2, 2),
                                                                                       (3, '2023-08-01 00:00:00', '2023-08-01 00:00:00', 3, 2),
