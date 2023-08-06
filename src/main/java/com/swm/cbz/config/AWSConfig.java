@@ -5,12 +5,14 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties(prefix = "aws.s3")
+@ConfigurationProperties(prefix = "aws")
 @Getter
 @Setter
 
 public class AWSConfig {
+    private String accessKey;
+    private String secretKey;
+    private String region;
     private String bucketName;
-    private String defaultKey;
 
 }
