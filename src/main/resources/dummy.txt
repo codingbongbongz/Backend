@@ -1,0 +1,1 @@
+//for recognition of /main/resources directory upon production
