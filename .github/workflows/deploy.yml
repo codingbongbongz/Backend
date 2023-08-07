@@ -84,7 +84,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
       run:
         aws deploy create-deployment 
-        --application-name sopt-server-codedeploy
+        --application-name cbz-codedeploy
         --deployment-group-name cbz-codedeploy-group
         --file-exists-behavior OVERWRITE 
         --s3-location bucket=cbz-deploy-bucket,bundleType=zip,key=cbz.zip
