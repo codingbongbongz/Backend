@@ -15,8 +15,9 @@ import java.util.Set;
 @Table
 public class Users {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="users_id")
-    private String usersId;
+    private Long userId;
 
     @Column
     private String name;

@@ -28,7 +28,7 @@ public class Transcript {
     @Column
     private Double duration;
 
-    @Column
+    @Column(length = 10000)
     private String soundLink;
 
     @ManyToOne

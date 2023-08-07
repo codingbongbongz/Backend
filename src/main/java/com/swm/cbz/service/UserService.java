@@ -1,5 +1,7 @@
 package com.swm.cbz.service;
 
+import com.swm.cbz.common.response.ErrorMessage;
+import com.swm.cbz.controller.exception.NotFoundException;
 import com.swm.cbz.domain.UserVideo;
 import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.Video;
@@ -12,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.swm.cbz.common.response.ErrorMessage.NOT_FOUND_USER_EXCEPTION;
+
 @Service
 public class UserService {
 
@@ -23,12 +27,15 @@ public class UserService {
         this.userVideoRepository = userVideoRepository;
     }
 
-    public Optional<Users> searchUserById(String userId) {
+    public Optional<Users> searchUserById(Long userId) {
         return userRepository.findById(userId);
     }
 
-    public UserVideoResponseDTO getVideosByUserId(String userId) {
-        List<UserVideo> userVideos = userVideoRepository.findByUsersUsersId(userId);
+    public UserVideoResponseDTO getVideosByUserId(Long userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(NOT_FOUND_USER_EXCEPTION));
+
+        List<UserVideo> userVideos = userVideoRepository.findByUsers(user);
         List<Video> videos = userVideos.stream()
                 .map(UserVideo::getVideo)
                 .collect(Collectors.toList());
@@ -37,4 +44,5 @@ public class UserService {
         responseDTO.setData(videos);
         return responseDTO;
     }
+
 }

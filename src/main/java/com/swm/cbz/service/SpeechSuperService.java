@@ -1,6 +1,9 @@
 package com.swm.cbz.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.swm.cbz.common.response.ApiResponse;
+import com.swm.cbz.common.response.ErrorMessage;
+import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.config.SpeechSuperConfig;
 import com.swm.cbz.domain.Evaluation;
 import com.swm.cbz.dto.SpeechSuperResponse;
@@ -29,6 +32,8 @@ import java.io.*;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class SpeechSuperService {
@@ -50,6 +55,7 @@ public class SpeechSuperService {
         this.transcriptRepository = transcriptRepository;
         this.userRepository = userRepository;
     }
+
     public String HttpAPI(byte[] audioData, String audioType, String audioSampleRate, String refText, String coreType) {
         String url = baseUrl + coreType;
         String userId = getRandomString(5);
@@ -103,7 +109,7 @@ public class SpeechSuperService {
         String startSigStr = appkey + timeStartMillis + userId + secretKey;
         String startSig = Hex.encodeHexString(digest.digest(startSigStr.getBytes()));
         //request param
-        String params = "{"
+        return "{"
                 + "\"connect\":{"
                 + "\"cmd\":\"connect\","
                 + "\"param\":{"
@@ -142,7 +148,6 @@ public class SpeechSuperService {
                 + "}"
                 + "}"
                 + "}";
-        return params;
     }
 
 
@@ -161,7 +166,7 @@ public class SpeechSuperService {
     }
 
 
-    public ResponseEntity<Evaluation> getEvaluation(String userId, Long transcriptId, String refText, byte[] audioData) {
+    public ApiResponse<Map<String, Object>> getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
         String coreType = "sent.eval.kr";
         String audioType = "wav";
         String audioSampleRate = "16000";
@@ -181,10 +186,18 @@ public class SpeechSuperService {
             userRepository.findById(userId).ifPresent(evaluation::setUsers);
             transcriptRepository.findById(transcriptId).ifPresent(evaluation::setTranscript);
             evaluationRepository.save(evaluation);
-            return new ResponseEntity<>(evaluation, HttpStatus.OK);
+            Map<String, Object> data = new HashMap<>();
+            data.put("userId", userId);
+            data.put("transcriptId", transcriptId);
+            data.put("evaluation", evaluation);
+
+            Map<String, Object> responseBody = new HashMap<>();
+            responseBody.put("message", "조회 성공하였습니다.");
+            responseBody.put("data", data);
+            return ApiResponse.success(SuccessMessage.EVALUATION_SUCCESS, responseBody);
         } catch (IOException e) {
             e.printStackTrace();
+            return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
