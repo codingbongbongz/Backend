@@ -190,11 +190,7 @@ public class SpeechSuperService {
             data.put("userId", userId);
             data.put("transcriptId", transcriptId);
             data.put("evaluation", evaluation);
-
-            Map<String, Object> responseBody = new HashMap<>();
-            responseBody.put("message", "조회 성공하였습니다.");
-            responseBody.put("data", data);
-            return ApiResponse.success(SuccessMessage.EVALUATION_SUCCESS, responseBody);
+            return ApiResponse.success(SuccessMessage.EVALUATION_SUCCESS, data);
         } catch (IOException e) {
             e.printStackTrace();
             return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);

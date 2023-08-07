@@ -133,7 +133,7 @@ public class TranscriptService {
     private static final String TRANSCRIPTS_NOT_FOUND = "자막 조회에 실패하였습니다.";
     private static final String TRANSCRIPTS_FOUND = "자막 조회 성공하였습니다.";
 
-    public TranscriptResponseDTO getTranscriptsByVideoId(Long videoId) {
+    public TranscriptDataDTO getTranscriptsByVideoId(Long videoId) {
         return videoRepository.findById(videoId)
                 .map(video -> {
                     video.setViews(video.getViews() + 1);
@@ -141,8 +141,7 @@ public class TranscriptService {
                     List<TranscriptDTO> transcriptDtos = video.getTranscripts().stream()
                             .map(t -> new TranscriptDTO(t.getTranscriptId(), t.getSentence(), t.getStart(), t.getDuration()))
                             .collect(Collectors.toList());
-                    TranscriptDataDTO data = new TranscriptDataDTO(videoId, transcriptDtos);
-                    return new TranscriptResponseDTO(TRANSCRIPTS_FOUND, data);
+                    return new TranscriptDataDTO(videoId, transcriptDtos);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Transcripts not found for video with id: " + videoId));
     }
