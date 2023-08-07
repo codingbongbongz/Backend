@@ -4,6 +4,7 @@ import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.dto.TranscriptDTO;
+import com.swm.cbz.dto.TranscriptDataDTO;
 import com.swm.cbz.dto.TranscriptResponseDTO;
 import com.swm.cbz.service.TranscriptService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +23,9 @@ public class TranscriptController {
     }
 
     @GetMapping("/videos/{videoId}/transcripts")
-    public ApiResponse<TranscriptResponseDTO> getTranscriptsForVideo(@PathVariable("videoId") Long id) {
+    public ApiResponse<TranscriptDataDTO> getTranscriptsForVideo(@PathVariable("videoId") Long id) {
         try {
-            TranscriptResponseDTO data = transcriptService.getTranscriptsByVideoId(id);
+            TranscriptDataDTO data = transcriptService.getTranscriptsByVideoId(id);
             return ApiResponse.success(SuccessMessage.GET_TRANSCRIPT_SUCCESS, data);
         } catch (EntityNotFoundException e) {
             return ApiResponse.error(ErrorMessage.TRANSCRIPT_NOT_FOUND, e.getMessage());

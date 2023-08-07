@@ -31,7 +31,7 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public UserVideoResponseDTO getVideosByUserId(Long userId) {
+    public List<Video> getVideosByUserId(Long userId) {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_USER_EXCEPTION));
 
@@ -40,9 +40,7 @@ public class UserService {
                 .map(UserVideo::getVideo)
                 .collect(Collectors.toList());
         UserVideoResponseDTO responseDTO = new UserVideoResponseDTO();
-        responseDTO.setMessage("학습한 동영상 목록 조회 성공하였습니다.");
-        responseDTO.setData(videos);
-        return responseDTO;
+        return videos;
     }
 
 }
