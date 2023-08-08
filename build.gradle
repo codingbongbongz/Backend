@@ -33,8 +33,6 @@ dependencies {
 	// JPA & Database
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-	//implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
 	// Validations
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
