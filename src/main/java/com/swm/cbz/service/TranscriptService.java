@@ -129,10 +129,6 @@ public class TranscriptService {
         return transcript;
     }
 
-
-    private static final String TRANSCRIPTS_NOT_FOUND = "자막 조회에 실패하였습니다.";
-    private static final String TRANSCRIPTS_FOUND = "자막 조회 성공하였습니다.";
-
     public TranscriptDataDTO getTranscriptsByVideoId(Long videoId) {
         return videoRepository.findById(videoId)
                 .map(video -> {

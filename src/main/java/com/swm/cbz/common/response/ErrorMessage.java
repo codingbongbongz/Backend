@@ -22,6 +22,8 @@ public enum ErrorMessage {
     EXPIRED_TOKEN(UNAUTHORIZED, "만료된 토큰입니다."),
     NOT_FOUND_USER_EXCEPTION(NOT_FOUND, "유저를 찾을 수 없습니다."),
 
+    NOT_FOUND_CATEGORY_EXCEPTION(NOT_FOUND, "카테고리를 찾을 수 없습니다."),
+
 
     /**
      * video
