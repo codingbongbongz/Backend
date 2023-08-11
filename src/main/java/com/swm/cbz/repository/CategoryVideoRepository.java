@@ -8,5 +8,5 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface CategoryVideoRepository extends JpaRepository<CategoryVideo, Long> {
-    List<CategoryVideo> findByCategoryId(Long categoryId);
+    List<CategoryVideo> findByCategory_CategoryId(Long categoryId);
 }

@@ -73,7 +73,7 @@ public class VideoService {
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException(NOT_FOUND_CATEGORY_EXCEPTION));
 
-        List<CategoryVideo> categoryVideos = categoryVideoRepository.findByCategoryId(categoryId);
+        List<CategoryVideo> categoryVideos = categoryVideoRepository.findByCategory_CategoryId(categoryId);
         List<Video> videos = categoryVideos.stream().map(CategoryVideo::getVideo).toList();
 
         List<CategoryVO> videoList = videos.stream()
