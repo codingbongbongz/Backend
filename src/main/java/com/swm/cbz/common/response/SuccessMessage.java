@@ -26,6 +26,8 @@ public enum SuccessMessage {
     CREATE_VIDEO_SUCCESS(CREATED, "비디오 생성에 성공했습니다."),
     GET_POPULAR_VIDEO_SUCCESS(OK, "인기 동영상 조회에 성공했습니다."),
 
+    GET_CATEGORY_VIDEO_SUCCESS(OK, "카테고리별 동영상 조회에 성공했스니다."),
+
     /**
      * transcript
      */
