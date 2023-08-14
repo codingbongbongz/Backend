@@ -38,6 +38,12 @@ public class Users {
     private String social;
 
     @Column
+    private String profileImageUrl;
+
+    @Column(length = 1500)
+    private String introduce;
+
+    @Column
     private Date createdAt;
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)

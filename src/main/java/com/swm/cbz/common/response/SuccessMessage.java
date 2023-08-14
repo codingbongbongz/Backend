@@ -20,6 +20,13 @@ public enum SuccessMessage {
      */
     GET_VIDEOS_BY_USER_SUCCESS(OK, "유저별 동영상을 불러오는데 성공했습니다."),
 
+    UPDATE_USER_SUCCESS(OK, "유저를 업데이트하는데 성공했습니다."),
+
+    DELETE_USER_SUCCESS(OK, "유저를 삭제하는데 성공했습니다."),
+
+    GET_USER_SUCCESS(OK, "유저를 불러오는데 성공했습니다."),
+    GET_USER_LIST_SUCCESS(OK, "유저 전체를 불러오는데 성공했습니다,"),
+
     /**
      * video
      */
