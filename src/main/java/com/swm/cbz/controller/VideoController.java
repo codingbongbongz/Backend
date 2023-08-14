@@ -20,9 +20,7 @@ public class VideoController {
     }
 
     @PostMapping("/upload")
-    public ApiResponse<Video> uploadVideo(@RequestBody LinkUploadDTO linkUploadDTO){
-        String link = linkUploadDTO.getLink();
-        Long userId = linkUploadDTO.getUserId();
+    public ApiResponse<Video> uploadVideo(@RequestParam Long userId, @RequestParam String link){
         return videoService.uploadVideo(userId, link);
     }
 
