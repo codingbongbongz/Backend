@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class SpeechSuperService {
@@ -195,5 +196,11 @@ public class SpeechSuperService {
             e.printStackTrace();
             return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public Optional<Evaluation> findByUserIdAndTranscriptId(Long userId, Long transcriptId) {
+        return evaluationRepository.findByUsers_UserIdAndTranscript_TranscriptIdOrderByCreatedAtDesc(userId, transcriptId)
+                .stream()
+                .findFirst();
     }
 }
