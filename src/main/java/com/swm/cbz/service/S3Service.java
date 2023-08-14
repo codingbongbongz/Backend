@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
@@ -43,6 +44,22 @@ public class S3Service {
                 .build();
         this.bucketName = bucketName;
         this.transcriptRepository = transcriptRepository;
+    }
+
+    public String uploadProfileImage(MultipartFile file, Long userId) {
+        try {
+            byte[] bytes = file.getBytes();
+            String originalFilename = file.getOriginalFilename();
+
+            String uniqueFileName = userId + "-" + originalFilename;
+
+            s3Client.putObject(new PutObjectRequest(bucketName, uniqueFileName, new ByteArrayInputStream(bytes), new ObjectMetadata()));
+
+            return uniqueFileName;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error uploading profile image to S3", e);
+        }
     }
 
 

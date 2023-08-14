@@ -4,14 +4,15 @@ import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.controller.exception.NotFoundException;
+import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.Video;
+import com.swm.cbz.dto.UserDTO;
 import com.swm.cbz.dto.UserVideoResponseDTO;
 import com.swm.cbz.service.UserService;
 import com.swm.cbz.service.VideoService;
+import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,5 +37,23 @@ public class UserController {
         }
     }
 
+    @PatchMapping("/mypage")
+    public ApiResponse<Users> patchUserProfile(@RequestParam Long userId, @ModelAttribute UserDTO userDTO){
+        return userService.updateUserProfile(userId, userDTO);
+    }
 
+    @DeleteMapping("/mypage")
+    public ApiResponse deleteUser(@RequestParam Long userId) {
+        return userService.deleteUser(userId);
+    }
+
+    @GetMapping("/user")
+    public ApiResponse<Users> getUser(@RequestParam Long userId){
+        return userService.getUserById(userId);
+    }
+
+    @GetMapping("/user/all")
+    public ApiResponse<List<Users>> getUsers(){
+        return userService.getAllUsers();
+    }
 }
