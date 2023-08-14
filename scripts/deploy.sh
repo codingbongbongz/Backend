@@ -1,4 +1,5 @@
-!/bin/bash
+#!/bin/bash
+
 BUILD_PATH=$(ls /home/ubuntu/app/cbz-0.0.1-SNAPSHOT.jar)
 JAR_NAME=$(basename $BUILD_PATH)
 echo "> build 파일명: $JAR_NAME"
@@ -7,26 +8,9 @@ echo "> build 파일 복사"
 DEPLOY_PATH=/home/ubuntu/app/nonstop/jar/
 cp $BUILD_PATH $DEPLOY_PATH
 
-# nginx가 8081, 8082이지에 따라 다르게 구동되도록 설정함 
-echo "> 현재 구동중인 Set 확인"
-CURRENT_PROFILE=$(curl -s http://localhost/profile)
-echo "> $CURRENT_PROFILE"
-
-# 쉬고 있는 set 찾기: set1이 사용중이면 set2가 쉬고 있고, 반대면 set1이 쉬고 있음
-if [ $CURRENT_PROFILE == set1 ]
-then
-  IDLE_PROFILE=set2
-  IDLE_PORT=8082
-elif [ $CURRENT_PROFILE == set2 ]
-then
-  IDLE_PROFILE=set1
-  IDLE_PORT=8081
-else
-  echo "> 일치하는 Profile이 없습니다. Profile: $CURRENT_PROFILE"
-  echo "> set1을 할당합니다. IDLE_PROFILE: set1"
-  IDLE_PROFILE=set1
-  IDLE_PORT=8081
-fi
+# Always use set1
+IDLE_PROFILE=set1
+IDLE_PORT=8081
 
 echo "> application.jar 교체"
 IDLE_APPLICATION=$IDLE_PROFILE-cbz.jar
@@ -48,8 +32,3 @@ fi
 
 echo "> $IDLE_PROFILE 배포"
 nohup java -jar -Duser.timezone=Asia/Seoul -Dspring.profiles.active=$IDLE_PROFILE $IDLE_APPLICATION_PATH >> /home/ubuntu/app/nohup.out 2>&1 &
-
-
-echo "> 스위칭"
-sleep 10
-/home/ubuntu/app/nonstop/switch.sh
