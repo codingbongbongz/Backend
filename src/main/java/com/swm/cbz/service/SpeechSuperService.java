@@ -6,6 +6,7 @@ import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.config.SpeechSuperConfig;
 import com.swm.cbz.domain.Evaluation;
+import com.swm.cbz.domain.Transcript;
 import com.swm.cbz.dto.SpeechSuperResponse;
 import com.swm.cbz.repository.EvaluationRepository;
 import com.swm.cbz.repository.TranscriptRepository;
@@ -31,10 +32,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class SpeechSuperService {
@@ -197,7 +195,17 @@ public class SpeechSuperService {
             return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
         }
     }
+    public Optional<List<Evaluation>> findAllEvaluationsByUserIdAndVideoId(Long userId, Long videoId) {
+        List<Transcript> transcripts = transcriptRepository.findAllByVideo_VideoId(videoId);
+        List<Evaluation> evaluations = new ArrayList<>();
 
+        for (Transcript transcript : transcripts) {
+            Optional<Evaluation> evaluationOpt = findByUserIdAndTranscriptId(userId, transcript.getTranscriptId());
+            evaluationOpt.ifPresent(evaluations::add);
+        }
+
+        return evaluations.isEmpty() ? Optional.empty() : Optional.of(evaluations);
+    }
     public Optional<Evaluation> findByUserIdAndTranscriptId(Long userId, Long transcriptId) {
         return evaluationRepository.findByUsers_UserIdAndTranscript_TranscriptIdOrderByCreatedAtDesc(userId, transcriptId)
                 .stream()

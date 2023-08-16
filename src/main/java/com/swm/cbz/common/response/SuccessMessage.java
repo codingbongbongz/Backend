@@ -43,7 +43,16 @@ public enum SuccessMessage {
     EVALUATION_SUCCESS(OK, "발음을 분석하는데 성공했습니다."),
     GET_PREVIOUS_EVALUATION(OK, "기존 분석을 가져오는데 성공했습니다."),
 
-    GET_TRANSCRIPT_AUDIO_SUCCESS(OK, "자막 음성을 불러오는데 성공했습니다.")
+    GET_TRANSCRIPT_AUDIO_SUCCESS(OK, "자막 음성을 불러오는데 성공했습니다."),
+
+
+    /**
+     * evaluations
+     */
+
+    GET_ALL_EVALUATIONS(OK, "전체 분석을 불러오는데 성공했습니다.")
+
+
     ;
 
     private final HttpStatus httpStatus;

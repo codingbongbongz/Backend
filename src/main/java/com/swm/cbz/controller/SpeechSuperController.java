@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,6 +37,19 @@ public class SpeechSuperController {
         } catch (IOException e) {
             e.printStackTrace();
             return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/videos/{videoId}/audio/previous")
+    public ApiResponse<Map<String, Object>> getPreviousEvaluations(@RequestParam("userId") Long userId, @PathVariable Long videoId){
+        Optional<List<Evaluation>> evaluationsOpt = speechSuperService.findAllEvaluationsByUserIdAndVideoId(userId, videoId);
+
+        if (evaluationsOpt.isPresent()) {
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("evaluations", evaluationsOpt.get());
+            return ApiResponse.success(SuccessMessage.GET_ALL_EVALUATIONS, responseData);
+        } else {
+            return ApiResponse.error(ErrorMessage.NOT_FOUND_EVALUATION_EXCEPTION);
         }
     }
 
