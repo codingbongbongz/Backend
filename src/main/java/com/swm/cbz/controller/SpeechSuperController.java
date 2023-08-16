@@ -4,6 +4,7 @@ import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.domain.Evaluation;
+import com.swm.cbz.dto.EvaluationDTO;
 import com.swm.cbz.dto.TranscriptDTO;
 import com.swm.cbz.service.SpeechSuperService;
 import org.springframework.http.ResponseEntity;
@@ -42,16 +43,16 @@ public class SpeechSuperController {
 
     @GetMapping("/videos/{videoId}/audio/previous")
     public ApiResponse<Map<String, Object>> getPreviousEvaluations(@RequestParam("userId") Long userId, @PathVariable Long videoId){
-        Optional<List<Evaluation>> evaluationsOpt = speechSuperService.findAllEvaluationsByUserIdAndVideoId(userId, videoId);
+        List<EvaluationDTO> evaluations = speechSuperService.findAllEvaluationsByUserIdAndVideoId(userId, videoId);
 
-        if (evaluationsOpt.isPresent()) {
-            Map<String, Object> responseData = new HashMap<>();
-            responseData.put("evaluations", evaluationsOpt.get());
-            return ApiResponse.success(SuccessMessage.GET_ALL_EVALUATIONS, responseData);
-        } else {
-            return ApiResponse.error(ErrorMessage.NOT_FOUND_EVALUATION_EXCEPTION);
-        }
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("evaluations", evaluations);
+
+        return evaluations.isEmpty()
+                ? ApiResponse.error(ErrorMessage.NOT_FOUND_EVALUATION_EXCEPTION)
+                : ApiResponse.success(SuccessMessage.GET_ALL_EVALUATIONS, responseData);
     }
+
 
     @GetMapping("/videos/{videoId}/transcripts/{transcriptId}/audio/previous")
     public ApiResponse<Map<String,Object>> getPreviousEvaluation(@RequestParam("userId") Long userId, @PathVariable Long videoId, @PathVariable Long transcriptId){
