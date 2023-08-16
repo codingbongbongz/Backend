@@ -7,6 +7,8 @@ import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.config.SpeechSuperConfig;
 import com.swm.cbz.domain.Evaluation;
 import com.swm.cbz.domain.Transcript;
+import com.swm.cbz.domain.Users;
+import com.swm.cbz.dto.EvaluationDTO;
 import com.swm.cbz.dto.SpeechSuperResponse;
 import com.swm.cbz.repository.EvaluationRepository;
 import com.swm.cbz.repository.TranscriptRepository;
@@ -29,6 +31,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.io.*;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
@@ -68,7 +71,7 @@ public class SpeechSuperService {
 
             StringBody comment = new StringBody(params, ContentType.APPLICATION_JSON);
             System.out.println(comment);
-            ByteArrayBody bin = new ByteArrayBody(audioData, ContentType.create("audio/wav"), "audio");
+            ByteArrayBody bin = new ByteArrayBody(audioData, ContentType.create("audio/mp3"), "audio");
             HttpEntity reqEntity = MultipartEntityBuilder.create().addPart("text", comment).addPart("audio", bin).build();
             httppost.setEntity(reqEntity);
 
@@ -167,7 +170,7 @@ public class SpeechSuperService {
 
     public ApiResponse<Map<String, Object>> getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
         String coreType = "sent.eval.kr";
-        String audioType = "wav";
+        String audioType = "mp3";
         String audioSampleRate = "16000";
         String response = HttpAPI(audioData, audioType, audioSampleRate, refText, coreType);
 
@@ -195,17 +198,44 @@ public class SpeechSuperService {
             return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
         }
     }
-    public Optional<List<Evaluation>> findAllEvaluationsByUserIdAndVideoId(Long userId, Long videoId) {
+    public List<EvaluationDTO> findAllEvaluationsByUserIdAndVideoId(Long userId, Long videoId) {
         List<Transcript> transcripts = transcriptRepository.findAllByVideo_VideoId(videoId);
-        List<Evaluation> evaluations = new ArrayList<>();
+        List<EvaluationDTO> evaluationDTOs = new ArrayList<>();
 
         for (Transcript transcript : transcripts) {
             Optional<Evaluation> evaluationOpt = findByUserIdAndTranscriptId(userId, transcript.getTranscriptId());
-            evaluationOpt.ifPresent(evaluations::add);
+
+            Evaluation evaluation = evaluationOpt.orElseGet(() -> {
+                Evaluation defaultEvaluation = new Evaluation();
+                defaultEvaluation.setTranscript(transcript);
+                defaultEvaluation.setOverall(0L);
+                defaultEvaluation.setPronunciation(0L);
+                defaultEvaluation.setFluency(0L);
+                defaultEvaluation.setIntegrity(0L);
+                defaultEvaluation.setRhythm(0L);
+                defaultEvaluation.setSpeed(0L);
+                defaultEvaluation.setCreatedAt(new Date());
+                defaultEvaluation.setUsers(userRepository.findById(userId).orElse(null));
+                return defaultEvaluation;
+            });
+
+            EvaluationDTO evaluationDTO = new EvaluationDTO();
+            evaluationDTO.setEvaluationId(evaluation.getEvaluationId());
+            evaluationDTO.setOverall(evaluation.getOverall());
+            evaluationDTO.setPronunciation(evaluation.getPronunciation());
+            evaluationDTO.setFluency(evaluation.getFluency());
+            evaluationDTO.setIntegrity(evaluation.getIntegrity());
+            evaluationDTO.setRhythm(evaluation.getRhythm());
+            evaluationDTO.setSpeed(evaluation.getSpeed());
+            evaluationDTO.setCreatedAt(evaluation.getCreatedAt());
+            evaluationDTO.setTranscriptId(transcript.getTranscriptId());
+            evaluationDTOs.add(evaluationDTO);
         }
 
-        return evaluations.isEmpty() ? Optional.empty() : Optional.of(evaluations);
+        return evaluationDTOs;
     }
+
+
     public Optional<Evaluation> findByUserIdAndTranscriptId(Long userId, Long transcriptId) {
         return evaluationRepository.findByUsers_UserIdAndTranscript_TranscriptIdOrderByCreatedAtDesc(userId, transcriptId)
                 .stream()
