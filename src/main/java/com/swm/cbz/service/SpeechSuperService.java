@@ -33,6 +33,8 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -71,7 +73,7 @@ public class SpeechSuperService {
 
             StringBody comment = new StringBody(params, ContentType.APPLICATION_JSON);
             System.out.println(comment);
-            ByteArrayBody bin = new ByteArrayBody(audioData, ContentType.create("audio/mp3"), "audio");
+            ByteArrayBody bin = new ByteArrayBody(audioData, ContentType.create("audio/wav"), "audio");
             HttpEntity reqEntity = MultipartEntityBuilder.create().addPart("text", comment).addPart("audio", bin).build();
             httppost.setEntity(reqEntity);
 
@@ -169,34 +171,40 @@ public class SpeechSuperService {
 
 
     public ApiResponse<Map<String, Object>> getEvaluation(Long userId, Long transcriptId, String refText, byte[] audioData) {
-        String coreType = "sent.eval.kr";
-        String audioType = "mp3";
-        String audioSampleRate = "16000";
-        String response = HttpAPI(audioData, audioType, audioSampleRate, refText, coreType);
-
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            SpeechSuperResponse apiResponse = mapper.readValue(response, SpeechSuperResponse.class);
-            Evaluation evaluation = new Evaluation();
-            evaluation.setOverall(apiResponse.getOverall());
-            evaluation.setPronunciation(apiResponse.getPronunciation());
-            evaluation.setFluency(apiResponse.getFluency());
-            evaluation.setIntegrity(apiResponse.getIntegrity());
-            evaluation.setRhythm(apiResponse.getRhythm());
-            evaluation.setSpeed(apiResponse.getSpeed());
-            evaluation.setCreatedAt(new Date());
-            userRepository.findById(userId).ifPresent(evaluation::setUsers);
-            transcriptRepository.findById(transcriptId).ifPresent(evaluation::setTranscript);
-            evaluationRepository.save(evaluation);
-            Map<String, Object> data = new HashMap<>();
-            data.put("userId", userId);
-            data.put("transcriptId", transcriptId);
-            data.put("evaluation", evaluation);
-            return ApiResponse.success(SuccessMessage.EVALUATION_SUCCESS, data);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
+            byte[] wavAudioData = convertM4aToWav(audioData);
+            String coreType = "sent.eval.kr";
+            String audioType = "wav";
+            String audioSampleRate = "16000";
+            String response = HttpAPI(wavAudioData, audioType, audioSampleRate, refText, coreType);
+
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                SpeechSuperResponse apiResponse = mapper.readValue(response, SpeechSuperResponse.class);
+                Evaluation evaluation = new Evaluation();
+                evaluation.setOverall(apiResponse.getOverall());
+                evaluation.setPronunciation(apiResponse.getPronunciation());
+                evaluation.setFluency(apiResponse.getFluency());
+                evaluation.setIntegrity(apiResponse.getIntegrity());
+                evaluation.setRhythm(apiResponse.getRhythm());
+                evaluation.setSpeed(apiResponse.getSpeed());
+                evaluation.setCreatedAt(new Date());
+                userRepository.findById(userId).ifPresent(evaluation::setUsers);
+                transcriptRepository.findById(transcriptId).ifPresent(evaluation::setTranscript);
+                evaluationRepository.save(evaluation);
+                Map<String, Object> data = new HashMap<>();
+                data.put("userId", userId);
+                data.put("transcriptId", transcriptId);
+                data.put("evaluation", evaluation);
+                return ApiResponse.success(SuccessMessage.EVALUATION_SUCCESS, data);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ApiResponse.error(ErrorMessage.INTERNAL_SERVER_ERROR);
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
         }
+
     }
     public List<EvaluationDTO> findAllEvaluationsByUserIdAndVideoId(Long userId, Long videoId) {
         List<Transcript> transcripts = transcriptRepository.findAllByVideo_VideoId(videoId);
@@ -233,6 +241,28 @@ public class SpeechSuperService {
         }
 
         return evaluationDTOs;
+    }
+
+    public byte[] convertM4aToWav(byte[] m4aAudioData) throws IOException, InterruptedException {
+
+        Path tempM4aFile = Files.createTempFile("temp-", ".m4a");
+        Files.write(tempM4aFile, m4aAudioData);
+
+        Path tempWavFile = Files.createTempFile("temp-", ".wav");
+
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command("ffmpeg", "-y", "-i", tempM4aFile.toString(), "-acodec", "pcm_s16le", tempWavFile.toString());
+
+        processBuilder.redirectErrorStream(true);
+        Process process = processBuilder.start();
+        process.waitFor();
+
+        byte[] wavData = Files.readAllBytes(tempWavFile);
+
+        Files.delete(tempM4aFile);
+        Files.delete(tempWavFile);
+
+        return wavData;
     }
 
 
