@@ -16,8 +16,9 @@ public class Translation {
     @Column(name="translation_id")
     private Long translationId;
 
-    @Column
-    private String language;
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
 
     @Column
     private String text;
