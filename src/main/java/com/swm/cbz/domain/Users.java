@@ -31,8 +31,9 @@ public class Users {
     @Column
     private String nickname;
 
-    @Column
-    private String country;
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    private Country country;
 
     @Column
     private String social;
