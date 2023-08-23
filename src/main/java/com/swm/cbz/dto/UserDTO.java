@@ -15,7 +15,7 @@ public class UserDTO {
     private String password;
     private String email;
     private String nickname;
-    private String country;
+    private Long countryId;
     private String social;
     private String introduce;
     private MultipartFile profileImage;
