@@ -4,11 +4,13 @@ import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.controller.exception.NotFoundException;
+import com.swm.cbz.domain.Country;
 import com.swm.cbz.domain.UserVideo;
 import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.dto.UserDTO;
 import com.swm.cbz.dto.UserVideoResponseDTO;
+import com.swm.cbz.repository.CountryRepository;
 import com.swm.cbz.repository.UserRepository;
 import com.swm.cbz.repository.UserVideoRepository;
 import org.springframework.stereotype.Service;
@@ -27,10 +29,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final S3Service s3Service;
     private final UserVideoRepository userVideoRepository;
-    public UserService(UserRepository userRepository, S3Service s3Service, UserVideoRepository userVideoRepository) {
+
+    private final CountryRepository countryRepository;
+    public UserService(UserRepository userRepository, S3Service s3Service, UserVideoRepository userVideoRepository, CountryRepository countryRepository) {
         this.userRepository = userRepository;
         this.s3Service = s3Service;
         this.userVideoRepository = userVideoRepository;
+        this.countryRepository = countryRepository;
     }
     
     public List<Video> getVideosByUserId(Long userId) {
@@ -66,8 +71,9 @@ public class UserService {
                 user.setNickname(userDTO.getNickname());
             }
 
-            if (userDTO.getCountry() != null) {
-                user.setCountry(userDTO.getCountry());
+            if (userDTO.getCountryId() != null) {
+                Optional<Country> countryOptional = countryRepository.findById(userDTO.getCountryId());
+                user.setCountry(countryOptional.orElse(null));
             }
 
             if (userDTO.getSocial() != null) {

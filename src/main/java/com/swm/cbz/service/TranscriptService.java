@@ -1,22 +1,17 @@
 package com.swm.cbz.service;
 
-import com.swm.cbz.domain.Transcript;
-import com.swm.cbz.domain.UserVideo;
-import com.swm.cbz.domain.Users;
-import com.swm.cbz.domain.Video;
+import com.swm.cbz.domain.*;
 import com.swm.cbz.dto.TranscriptDTO;
 import com.swm.cbz.dto.TranscriptDataDTO;
-import com.swm.cbz.dto.TranscriptResponseDTO;
-import com.swm.cbz.repository.TranscriptRepository;
-import com.swm.cbz.repository.UserRepository;
-import com.swm.cbz.repository.UserVideoRepository;
-import com.swm.cbz.repository.VideoRepository;
+import com.swm.cbz.repository.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +19,10 @@ public class TranscriptService {
     private final TranscriptRepository transcriptRepository;
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
+    private final TranslationRepository translationRepository;
+    private final TranslateService translateService;
+
+    private final CountryRepository countryRepository;
     private final WebClient webClient;
 
     private final S3Service s3Service;
@@ -32,10 +31,16 @@ public class TranscriptService {
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(100 * 1024 * 1024))
             .build();
 
-    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, S3Service s3Service, UserVideoRepository userVideoRepository) {
+    List<String> targetLanguages = Arrays.asList("en");
+    // List<String> targetLanguages = Arrays.asList("en", "vi", "tl", "zh", "ja");  개느려서 비동기 공부더되기전까진 주석
+
+    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, TranslationRepository translationRepository, TranslateService translateService, CountryRepository countryRepository, S3Service s3Service, UserVideoRepository userVideoRepository) {
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
         this.transcriptRepository = transcriptRepository;
+        this.translationRepository = translationRepository;
+        this.translateService = translateService;
+        this.countryRepository = countryRepository;
         this.s3Service = s3Service;
         this.userVideoRepository = userVideoRepository;
         this.webClient = WebClient.builder()
@@ -61,7 +66,7 @@ public class TranscriptService {
         }
 
         Video video = createVideo(link, youtubeData);
-        videoRepository.save(video);
+
 
         UserVideo userVideo = new UserVideo();
         userVideo.setVideo(video);
@@ -77,6 +82,7 @@ public class TranscriptService {
         video.setViews(0L);
         video.setIsDefault(true);
         video.setCreatedAt(new Date());
+        videoRepository.save(video);
         if (youtubeData != null && !youtubeData.isEmpty()) {
             Map<String, Object> details = youtubeData.get(0);
 
@@ -97,23 +103,27 @@ public class TranscriptService {
             }
         }
 
-        List<Transcript> transcriptList = new ArrayList<>();
+        List<CompletableFuture<Transcript>> futures = new ArrayList<>();
+        assert youtubeData != null;
         for (Map transcriptData : youtubeData) {
             List<Map<String, Object>> transcripts = (List<Map<String, Object>>) transcriptData.get("transcripts");
             if (transcripts != null) {
                 for (Map<String, Object> transcriptMap : transcripts) {
-                    Transcript transcript = createTranscript(transcriptMap, video);
-                    transcriptList.add(transcript);
+                    futures.add(createTranscript(transcriptMap, video));
                 }
             }
         }
 
-        video.setTranscripts(transcriptList);
-        return video;
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        for (CompletableFuture<Transcript> future : futures) {
+            video.getTranscripts().add(future.join());
+        }
+
+        return videoRepository.save(video);
     }
 
-
-    private Transcript createTranscript(Map<String, Object> transcriptMap, Video video) {
+    @Async("taskExecutor")
+    public CompletableFuture<Transcript> createTranscript(Map<String, Object> transcriptMap, Video video) {
         Transcript transcript = new Transcript();
         transcript.setSentence((String) transcriptMap.get("text"));
         transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
@@ -126,8 +136,29 @@ public class TranscriptService {
             transcript.setSoundLink(s3Url);
         }
         transcript.setVideo(video);
-        return transcript;
+        transcript = transcriptRepository.save(transcript);
+
+        List<CompletableFuture<Void>> translationFutures = new ArrayList<>();
+
+        for (String country : targetLanguages) {
+            final Transcript currentTranscript = transcript;
+            CompletableFuture<Void> translationFuture = translateService.translateText((String) transcriptMap.get("text"), "ko", country)
+                    .thenAccept(translationText -> {
+                        Translation translation = new Translation();
+                        translation.setTranscript(currentTranscript);
+                        translation.setCountry(countryRepository.findByCountryCode(country));
+                        translation.setText(translationText);
+                        translationRepository.save(translation);
+                    });
+            translationFutures.add(translationFuture);
+        }
+
+
+        CompletableFuture.allOf(translationFutures.toArray(new CompletableFuture[0])).join();
+
+        return CompletableFuture.completedFuture(transcript);
     }
+
 
     public TranscriptDataDTO getTranscriptsByVideoId(Long videoId) {
         return videoRepository.findById(videoId)
