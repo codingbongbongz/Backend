@@ -74,6 +74,9 @@ dependencies {
 	//HttpComponents
 	implementation 'org.apache.httpcomponents:httpmime:4.5.14'
 
+	//AWS translate sdk
+	implementation 'software.amazon.awssdk:translate:2.20.68'
+
 }
 
 tasks.named('test') {
