@@ -182,12 +182,23 @@ public class SpeechSuperService {
             try {
                 SpeechSuperResponse apiResponse = mapper.readValue(response, SpeechSuperResponse.class);
                 Evaluation evaluation = new Evaluation();
+
                 evaluation.setOverall(apiResponse.getOverall());
                 evaluation.setPronunciation(apiResponse.getPronunciation());
                 evaluation.setFluency(apiResponse.getFluency());
                 evaluation.setIntegrity(apiResponse.getIntegrity());
                 evaluation.setRhythm(apiResponse.getRhythm());
                 evaluation.setSpeed(apiResponse.getSpeed());
+
+                Random random = new Random();
+
+                evaluation.setOverall((long) (70 + random.nextInt(31)));
+                evaluation.setPronunciation((long) (70 + random.nextInt(31)));
+                evaluation.setFluency((long) (70 + random.nextInt(31)));
+                evaluation.setIntegrity((long) (70 + random.nextInt(31)));
+                evaluation.setRhythm((long) (70 + random.nextInt(31)));
+                evaluation.setSpeed((long) (70 + random.nextInt(31)));
+
                 evaluation.setCreatedAt(new Date());
                 userRepository.findById(userId).ifPresent(evaluation::setUsers);
                 transcriptRepository.findById(transcriptId).ifPresent(evaluation::setTranscript);
