@@ -166,12 +166,14 @@ public class TranscriptService {
                     video.setViews(video.getViews() + 1);
                     videoRepository.save(video);
                     List<TranscriptDTO> transcriptDtos = video.getTranscripts().stream()
+                            .sorted(Comparator.comparing(Transcript::getTranscriptId)) // Sort by transcriptId
                             .map(t -> new TranscriptDTO(t.getTranscriptId(), t.getSentence(), t.getStart(), t.getDuration()))
                             .collect(Collectors.toList());
                     return new TranscriptDataDTO(videoId, transcriptDtos);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Transcripts not found for video with id: " + videoId));
     }
+
 
 
 
