@@ -2,6 +2,7 @@ package com.swm.cbz.controller;
 
 import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.SuccessMessage;
+import com.swm.cbz.config.resolver.UserId;
 import com.swm.cbz.domain.Video;
 import com.swm.cbz.dto.LinkUploadDTO;
 import com.swm.cbz.dto.video.response.CategoryResponseDTO;
@@ -20,13 +21,13 @@ public class VideoController {
     }
 
     @PostMapping("/upload")
-    public ApiResponse<Video> uploadVideo(@RequestParam Long userId, @RequestParam String link){
+    public ApiResponse<Video> uploadVideo(@UserId Long userId, @RequestParam String link){
         return videoService.uploadVideo(userId, link);
     }
 
     @GetMapping("/videos/popular")
     public ApiResponse<PopularVideoResponseDTO> getPopularVideo(
-            @RequestHeader Long userId
+            @UserId Long userId
     ) {
         PopularVideoResponseDTO data = videoService.getPopularVideo(userId);
         return ApiResponse.success(SuccessMessage.GET_POPULAR_VIDEO_SUCCESS, data);

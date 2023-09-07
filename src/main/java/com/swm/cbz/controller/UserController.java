@@ -3,6 +3,7 @@ package com.swm.cbz.controller;
 import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
+import com.swm.cbz.config.resolver.UserId;
 import com.swm.cbz.controller.exception.NotFoundException;
 import com.swm.cbz.domain.Users;
 import com.swm.cbz.domain.Video;
@@ -27,8 +28,8 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/videos/{userId}")
-    public ApiResponse<List<Video>> getVideosByUserId(@PathVariable Long userId) {
+    @GetMapping("/videos")
+    public ApiResponse<List<Video>> getVideosByUserId(@UserId Long userId) {
         try {
             List<Video> data = userService.getVideosByUserId(userId);
             return ApiResponse.success(SuccessMessage.GET_VIDEOS_BY_USER_SUCCESS, data);
@@ -38,17 +39,17 @@ public class UserController {
     }
 
     @PatchMapping("/mypage")
-    public ApiResponse<Users> patchUserProfile(@RequestParam Long userId, @ModelAttribute UserDTO userDTO){
+    public ApiResponse<Users> patchUserProfile(@UserId Long userId, @ModelAttribute UserDTO userDTO){
         return userService.updateUserProfile(userId, userDTO);
     }
 
     @DeleteMapping("/mypage")
-    public ApiResponse deleteUser(@RequestParam Long userId) {
+    public ApiResponse deleteUser(@UserId Long userId) {
         return userService.deleteUser(userId);
     }
 
     @GetMapping("/user")
-    public ApiResponse<Users> getUser(@RequestParam Long userId){
+    public ApiResponse<Users> getUser(@UserId Long userId){
         return userService.getUserById(userId);
     }
 
@@ -56,4 +57,5 @@ public class UserController {
     public ApiResponse<List<Users>> getUsers(){
         return userService.getAllUsers();
     }
+
 }

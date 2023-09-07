@@ -14,6 +14,7 @@ public enum SuccessMessage {
      * auth
      */
     LOGIN_SUCCESS(CREATED, "로그인이 성공했습니다."),
+    SIGNUP_SUCCESS(CREATED, "회원가입에 성공했습니다."),
 
     /**
      * user
