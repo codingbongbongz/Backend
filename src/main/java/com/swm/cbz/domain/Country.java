@@ -1,10 +1,10 @@
 package com.swm.cbz.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-
 @Getter
 @Setter
 @Entity

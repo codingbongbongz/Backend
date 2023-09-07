@@ -1,22 +1,43 @@
 package com.swm.cbz.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.persistence.*;
+import com.swm.cbz.dto.authorization.request.SignupRequestDTO;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 @Getter
 @Setter
 @Entity
 @Table
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Users {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="users_id")
+    @Column(name = "users_id")
     private Long userId;
 
     @Column
@@ -26,9 +47,11 @@ public class Users {
     private String password;
 
     @Column
+    @NotNull
     private String email;
 
     @Column
+    @NotNull
     private String nickname;
 
     @ManyToOne
@@ -45,7 +68,8 @@ public class Users {
     private String introduce;
 
     @Column
-    private Date createdAt;
+    @CreatedDate
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -54,4 +78,15 @@ public class Users {
     @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private Set<Evaluation> evaluations = new HashSet<>();
+
+    public static Users of(SignupRequestDTO requestDTO) {
+        return Users.builder()
+            .name(requestDTO.getName())
+            .nickname(requestDTO.getNickname())
+            .email(requestDTO.getEmail())
+            .introduce(requestDTO.getIntroduce())
+            .password(requestDTO.getPassword())
+            .createdAt(LocalDateTime.now())
+            .build();
+    }
 }
