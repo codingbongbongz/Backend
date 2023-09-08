@@ -4,6 +4,8 @@ import com.swm.cbz.domain.*;
 import com.swm.cbz.dto.TranscriptDTO;
 import com.swm.cbz.dto.TranscriptDataDTO;
 import com.swm.cbz.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TranscriptService {
+    private static final Logger logger = LoggerFactory.getLogger(TranscriptService.class);
+
     private final TranscriptRepository transcriptRepository;
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
@@ -55,12 +59,17 @@ public class TranscriptService {
 
         List<Map> youtubeData;
         try {
+
+
+            start = System.currentTimeMillis();
             youtubeData = webClient.get()
                     .uri("http://localhost:5000/transcripts/" + link)
                     .retrieve()
                     .bodyToFlux(Map.class)
                     .collectList()
                     .block();
+            end = System.currentTimeMillis();
+            logger.info("transcript 호출: {} ms", (end - start));
         } catch (Exception e) {
             throw new Exception("An error occurred while retrieving the transcripts", e);
         }
@@ -75,14 +84,25 @@ public class TranscriptService {
 
         return video;
     }
-
+    long start, end;
     private Video createVideo(String link, List<Map> youtubeData) {
+
+        start = System.currentTimeMillis();
         Video video = new Video();
         video.setLink(link);
         video.setViews(0L);
         video.setIsDefault(true);
         video.setCreatedAt(new Date());
         videoRepository.save(video);
+        end = System.currentTimeMillis();
+        logger.info("Time taken for initializing video: {} ms", (end - start));
+
+        start = System.currentTimeMillis();
+        videoRepository.save(video);
+        end = System.currentTimeMillis();
+        logger.info("Time taken for saving video: {} ms", (end - start));
+
+        start = System.currentTimeMillis();
         if (youtubeData != null && !youtubeData.isEmpty()) {
             Map<String, Object> details = youtubeData.get(0);
 
@@ -108,6 +128,10 @@ public class TranscriptService {
         for (Map transcriptData : youtubeData) {
             List<Map<String, Object>> transcripts = (List<Map<String, Object>>) transcriptData.get("transcripts");
             if (transcripts != null) {
+                end = System.currentTimeMillis();
+                logger.info("Time taken for handling youtubeData: {} ms", (end - start));
+
+                start = System.currentTimeMillis();
                 for (Map<String, Object> transcriptMap : transcripts) {
                     futures.add(createTranscript(transcriptMap, video));
                 }
@@ -129,11 +153,19 @@ public class TranscriptService {
         transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
         transcript.setDuration(((Number) transcriptMap.get("duration")).doubleValue());
         String audioBase64 = (String) transcriptMap.get("audio");
+        end = System.currentTimeMillis();
+        logger.info("transcript 저장: {} ms", (end - start));
+        logger.info("transcript 저장 시각 : {}", System.currentTimeMillis());
+        start = System.currentTimeMillis();
         if (audioBase64 != null) {
             byte[] audioBytes = Base64.getDecoder().decode(audioBase64);
             String fileName = UUID.randomUUID().toString() + ".mp3";
             String s3Url = s3Service.uploadAudio(audioBytes, fileName);
             transcript.setSoundLink(s3Url);
+            end = System.currentTimeMillis();
+            logger.info("soundlink 저장: {} ms", (end - start));
+            logger.info("SoundLink 저장 시각: {}", System.currentTimeMillis());
+            start = System.currentTimeMillis();
         }
         transcript.setVideo(video);
         transcript = transcriptRepository.save(transcript);
@@ -152,7 +184,10 @@ public class TranscriptService {
                     });
             translationFutures.add(translationFuture);
         }
-
+        end = System.currentTimeMillis();
+        logger.info("translation 저장: {} ms", (end - start));
+        logger.info("translation 저장 시각 : {}", System.currentTimeMillis());
+        start = System.currentTimeMillis();
 
         CompletableFuture.allOf(translationFutures.toArray(new CompletableFuture[0])).join();
 
@@ -166,7 +201,7 @@ public class TranscriptService {
                     video.setViews(video.getViews() + 1);
                     videoRepository.save(video);
                     List<TranscriptDTO> transcriptDtos = video.getTranscripts().stream()
-                            .sorted(Comparator.comparing(Transcript::getTranscriptId)) // Sort by transcriptId
+                            .sorted(Comparator.comparing(Transcript::getStart)) // Sort by start
                             .map(t -> new TranscriptDTO(t.getTranscriptId(), t.getSentence(), t.getStart(), t.getDuration()))
                             .collect(Collectors.toList());
                     return new TranscriptDataDTO(videoId, transcriptDtos);
