@@ -6,6 +6,8 @@ import com.swm.cbz.dto.TranscriptDataDTO;
 import com.swm.cbz.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 public class TranscriptService {
     private static final Logger logger = LoggerFactory.getLogger(TranscriptService.class);
 
+    @Autowired
+    private KafkaTemplate<String, Video> kafkaTemplate;
     private final TranscriptRepository transcriptRepository;
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
@@ -59,8 +63,6 @@ public class TranscriptService {
 
         List<Map> youtubeData;
         try {
-
-
             start = System.currentTimeMillis();
             youtubeData = webClient.get()
                     .uri("http://localhost:5000/transcripts/" + link)
@@ -75,8 +77,6 @@ public class TranscriptService {
         }
 
         Video video = createVideo(link, youtubeData);
-
-
         UserVideo userVideo = new UserVideo();
         userVideo.setVideo(video);
         userVideo.setUsers(user);
