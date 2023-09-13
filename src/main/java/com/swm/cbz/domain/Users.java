@@ -68,6 +68,9 @@ public class Users {
     private String introduce;
 
     @Column
+    private Long totalScore = 0L;
+
+    @Column
     @CreatedDate
     private LocalDateTime createdAt;
 

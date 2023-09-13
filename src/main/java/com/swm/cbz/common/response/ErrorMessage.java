@@ -31,6 +31,7 @@ public enum ErrorMessage {
      * video
      */
 
+    VIDEO_ALREADY_EXISTS(CONFLICT, "존재하는 동영상입니다."),
 
     /**
      * server

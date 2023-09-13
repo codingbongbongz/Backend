@@ -34,7 +34,9 @@ public enum SuccessMessage {
     CREATE_VIDEO_SUCCESS(CREATED, "비디오 생성에 성공했습니다."),
     GET_POPULAR_VIDEO_SUCCESS(OK, "인기 동영상 조회에 성공했습니다."),
 
-    GET_CATEGORY_VIDEO_SUCCESS(OK, "카테고리별 동영상 조회에 성공했스니다."),
+    GET_CATEGORY_VIDEO_SUCCESS(OK, "카테고리별 동영상 조회에 성공했습니다."),
+
+    VIEW_VIDEO_SUCCESS(OK, "동영상 보기에 성공했습니다."),
 
     /**
      * transcript
@@ -58,8 +60,12 @@ public enum SuccessMessage {
      * openAI
      */
 
-    OPENAI_SUCCESS(OK, "OpenAI response 가져오기 성공")
+    OPENAI_SUCCESS(OK, "OpenAI response 가져오기 성공"),
 
+    /**
+     * leaderboard
+     */
+    LEADERBOARD_SUCCESS(OK, "리더보드 가져오기 성공.")
     ;
 
     private final HttpStatus httpStatus;
