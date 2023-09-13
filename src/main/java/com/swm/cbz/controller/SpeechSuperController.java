@@ -34,7 +34,7 @@ public class SpeechSuperController {
 
     @PostMapping("/videos/{videoId}/transcripts/{transcriptId}/audio")
     public ApiResponse<Map<String, Object>> getEvaluation(
-        @RequestParam("audio") MultipartFile audioFile, @UserId Long userId,
+            @RequestParam("audio") MultipartFile audioFile, @UserId Long userId,
         @PathVariable Long videoId, @PathVariable Long transcriptId) {
         TranscriptDTO transcriptDTO =
             transcriptController.getTranscriptById(videoId, transcriptId).getData();
