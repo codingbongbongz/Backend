@@ -51,8 +51,14 @@ public enum SuccessMessage {
      * evaluations
      */
 
-    GET_ALL_EVALUATIONS(OK, "전체 분석을 불러오는데 성공했습니다.")
+    GET_ALL_EVALUATIONS(OK, "전체 분석을 불러오는데 성공했습니다."),
 
+
+    /**
+     * openAI
+     */
+
+    OPENAI_SUCCESS(OK, "OpenAI response 가져오기 성공")
 
     ;
 
