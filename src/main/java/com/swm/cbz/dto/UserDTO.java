@@ -18,5 +18,6 @@ public class UserDTO {
     private Long countryId;
     private String social;
     private String introduce;
+    private Long totalScore;
     private MultipartFile profileImage;
 }
