@@ -12,5 +12,7 @@ public interface VideoRepository extends JpaRepository<Video, Long> {
 
     List<Video> findTop5ByOrderByYoutubeViewsDesc();
 
+    Video findByLink(String link);
 
+    boolean existsByLink(String link);
 }
