@@ -5,9 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+import static org.springframework.http.HttpStatus.*;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -44,7 +42,15 @@ public enum ErrorMessage {
      * transcript
      */
 
-    TRANSCRIPT_NOT_FOUND(NOT_FOUND, "자막을 찾을 수 없습니다.");
+    TRANSCRIPT_NOT_FOUND(NOT_FOUND, "자막을 찾을 수 없습니다."),
+
+    /**
+     * OpenAI
+     */
+
+
+    OPENAI_FAILURE(OK, "OpenAI response 가져오기 실패")
+    ;
     private final HttpStatus httpStatus;
     private final String message;
 
