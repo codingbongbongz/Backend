@@ -6,9 +6,11 @@ import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.service.OpenAIService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -21,12 +23,26 @@ public class OpenAIController {
         this.openAIService = openAIService;
     }
 
-    @PostMapping(value = "/fetchGeneratedText", consumes = "text/plain", produces = "application/json")
-    public ApiResponse<Map<String, Object>> fetchGeneratedText(@RequestBody String inputText) {
+    @PostMapping(value = "/openAI/examples")
+    public ApiResponse<Map<String, Object>> fetchExamples(@RequestParam String word) {
         Map<String, Object> responseData = new HashMap<>();
+        String inputText = "Give me 5 examples of where this korean word is used in a korean sentence. : '" + word + "'";
         try {
-            String generatedText = openAIService.fetchOpenAIResponse(inputText);
-            responseData.put("generated_text", generatedText);
+            List<String> examples = openAIService.fetchExamples(inputText);
+            responseData.put("examples", examples);
+            return ApiResponse.success(SuccessMessage.OPENAI_SUCCESS, responseData);
+        } catch (Exception e) {
+            return ApiResponse.error(ErrorMessage.OPENAI_FAILURE);
+        }
+    }
+
+    @PostMapping(value = "/openAI/nouns")
+    public ApiResponse<Map<String, Object>> fetchNouns(@RequestParam String sentence){
+        Map<String, Object> responseData = new HashMap<>();
+        String inputText = "Give me the nouns in this korean sentence seperated by blank spaces. : '" + sentence + "'";
+        try {
+            List<String> nouns = openAIService.fetchNouns(inputText);
+            responseData.put("nouns", nouns);
             return ApiResponse.success(SuccessMessage.OPENAI_SUCCESS, responseData);
         } catch (Exception e) {
             return ApiResponse.error(ErrorMessage.OPENAI_FAILURE);
