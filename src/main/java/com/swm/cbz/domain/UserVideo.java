@@ -10,7 +10,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"video_id", "users_id"}))
 public class UserVideo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
