@@ -56,56 +56,35 @@ public class TranscriptService {
     public Video fetchTranscripts(String link, Long userId) throws Exception {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
-
         List<Map> youtubeData;
         try {
-
-
-            start = System.currentTimeMillis();
             youtubeData = webClient.get()
                     .uri("http://localhost:5000/transcripts/" + link)
                     .retrieve()
                     .bodyToFlux(Map.class)
                     .collectList()
                     .block();
-            end = System.currentTimeMillis();
-            logger.info("transcript 호출: {} ms", (end - start));
         } catch (Exception e) {
             throw new Exception("An error occurred while retrieving the transcripts", e);
         }
-
         Video video = createVideo(link, youtubeData);
-
-
         UserVideo userVideo = new UserVideo();
         userVideo.setVideo(video);
         userVideo.setUsers(user);
         userVideoRepository.save(userVideo);
-
         return video;
     }
-    long start, end;
-    private Video createVideo(String link, List<Map> youtubeData) {
 
-        start = System.currentTimeMillis();
+    private Video createVideo(String link, List<Map> youtubeData) {
         Video video = new Video();
         video.setLink(link);
         video.setViews(0L);
         video.setIsDefault(true);
         video.setCreatedAt(new Date());
         videoRepository.save(video);
-        end = System.currentTimeMillis();
-        logger.info("Time taken for initializing video: {} ms", (end - start));
-
-        start = System.currentTimeMillis();
         videoRepository.save(video);
-        end = System.currentTimeMillis();
-        logger.info("Time taken for saving video: {} ms", (end - start));
-
-        start = System.currentTimeMillis();
         if (youtubeData != null && !youtubeData.isEmpty()) {
             Map<String, Object> details = youtubeData.get(0);
-
             video.setVideoTitle((String) details.get("title"));
             video.setCreator((String) details.get("creator"));
             Object durationObject = details.get("duration");
@@ -114,7 +93,6 @@ public class TranscriptService {
                 long durationInSeconds = Long.parseLong(durationString);
                 video.setDuration(durationInSeconds);
             }
-
             Object youtubeViews = details.get("viewCount");
             if (youtubeViews != null) {
                 String youtubeViewsString = youtubeViews.toString();
@@ -128,10 +106,6 @@ public class TranscriptService {
         for (Map transcriptData : youtubeData) {
             List<Map<String, Object>> transcripts = (List<Map<String, Object>>) transcriptData.get("transcripts");
             if (transcripts != null) {
-                end = System.currentTimeMillis();
-                logger.info("Time taken for handling youtubeData: {} ms", (end - start));
-
-                start = System.currentTimeMillis();
                 for (Map<String, Object> transcriptMap : transcripts) {
                     futures.add(createTranscript(transcriptMap, video));
                 }
@@ -152,48 +126,55 @@ public class TranscriptService {
         transcript.setSentence((String) transcriptMap.get("text"));
         transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
         transcript.setDuration(((Number) transcriptMap.get("duration")).doubleValue());
-        String audioBase64 = (String) transcriptMap.get("audio");
-        end = System.currentTimeMillis();
-        logger.info("transcript 저장: {} ms", (end - start));
-        logger.info("transcript 저장 시각 : {}", System.currentTimeMillis());
-        start = System.currentTimeMillis();
+        transcript.setVideo(video);
+        transcript = transcriptRepository.save(transcript);
+        return CompletableFuture.completedFuture(transcript);
+    }
+
+    public void audioProcessByTranscript(Transcript transcript) throws Exception {
+        List<Map>youtubeData;
+        if(transcript.getSoundLink()!=null) return;
+        String text = transcript.getSentence();
+        try {
+            youtubeData = webClient.get()
+                    .uri("http://localhost:5000/audio/" + text)
+                    .retrieve()
+                    .bodyToFlux(Map.class)
+                    .collectList()
+                    .block();
+        } catch (Exception e) {
+            throw new Exception("An error occurred while retrieving the transcripts", e);
+        }
+        Map<String, Object> details = youtubeData.get(0);
+        String audioBase64 = (String) details.get("audio");
         if (audioBase64 != null) {
             byte[] audioBytes = Base64.getDecoder().decode(audioBase64);
             String fileName = UUID.randomUUID().toString() + ".mp3";
             String s3Url = s3Service.uploadAudio(audioBytes, fileName);
             transcript.setSoundLink(s3Url);
-            end = System.currentTimeMillis();
-            logger.info("soundlink 저장: {} ms", (end - start));
-            logger.info("SoundLink 저장 시각: {}", System.currentTimeMillis());
-            start = System.currentTimeMillis();
         }
-        transcript.setVideo(video);
-        transcript = transcriptRepository.save(transcript);
-
-        List<CompletableFuture<Void>> translationFutures = new ArrayList<>();
-
-        for (String country : targetLanguages) {
-            final Transcript currentTranscript = transcript;
-            CompletableFuture<Void> translationFuture = translateService.translateText((String) transcriptMap.get("text"), "ko", country)
-                    .thenAccept(translationText -> {
-                        Translation translation = new Translation();
-                        translation.setTranscript(currentTranscript);
-                        translation.setCountry(countryRepository.findByCountryCode(country));
-                        translation.setText(translationText);
-                        translationRepository.save(translation);
-                    });
-            translationFutures.add(translationFuture);
-        }
-        end = System.currentTimeMillis();
-        logger.info("translation 저장: {} ms", (end - start));
-        logger.info("translation 저장 시각 : {}", System.currentTimeMillis());
-        start = System.currentTimeMillis();
-
-        CompletableFuture.allOf(translationFutures.toArray(new CompletableFuture[0])).join();
-
-        return CompletableFuture.completedFuture(transcript);
     }
+    public void translationProcessByTranscript(Transcript transcript) {
+        List<Translation> translations = translationRepository.findByTranscript_TranscriptId(transcript.getTranscriptId());
 
+        if (!translations.isEmpty()) {
+            System.out.println(translations);
+            return;
+        }
+
+        String text = transcript.getSentence();
+        for (String country : targetLanguages) {
+            String translationText = translateService.translateText(text, "ko", country);
+            Translation translation = new Translation();
+            translation.setTranscript(transcript);
+            translation.setCountry(countryRepository.findByCountryCode(country));
+            translation.setText(translationText);
+
+            System.out.println(translation);
+
+            translationRepository.save(translation);
+        }
+    }
 
     public TranscriptDataDTO getTranscriptsByVideoId(Long videoId) {
         return videoRepository.findById(videoId)
@@ -208,11 +189,6 @@ public class TranscriptService {
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Transcripts not found for video with id: " + videoId));
     }
-
-
-
-
-
     public TranscriptDTO getTranscriptByVideoIdAndTranscriptId(Long videoId, Long transcriptId) {
         Optional<Transcript> optionalTranscript = transcriptRepository.findByTranscriptIdAndVideoVideoId(transcriptId, videoId);
 

@@ -3,6 +3,7 @@ package com.swm.cbz.domain;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
 import java.util.*;
@@ -39,6 +40,7 @@ public class Video {
     private Long youtubeViews;
 
     @Column
+    @CreatedDate
     private Date createdAt;
 
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL, orphanRemoval = true)

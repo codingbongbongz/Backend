@@ -65,8 +65,8 @@ public enum SuccessMessage {
     /**
      * leaderboard
      */
-    LEADERBOARD_SUCCESS(OK, "리더보드 가져오기 성공.")
-    ;
+    LEADERBOARD_SUCCESS(OK, "리더보드 가져오기 성공."),
+    GET_TRANSLATIONS_SUCCESS(OK, "translation 가져오기 성공" );
 
     private final HttpStatus httpStatus;
     private final String message;

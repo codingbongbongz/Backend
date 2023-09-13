@@ -50,8 +50,12 @@ public enum ErrorMessage {
      */
 
 
-    OPENAI_FAILURE(OK, "OpenAI response 가져오기 실패")
-    ;
+    OPENAI_FAILURE(OK, "OpenAI response 가져오기 실패"),
+
+    /**
+     * translation
+     */
+    TRANSLATIONS_NOT_FOUND(NOT_FOUND, "translation 가져오기 실패");
     private final HttpStatus httpStatus;
     private final String message;
 

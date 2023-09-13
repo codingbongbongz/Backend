@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 public class AwsTranslateConfig {
 
     @Bean
-    public TranslateAsyncClient translateAsyncClient() {
-        return TranslateAsyncClient.builder()
+    public TranslateClient translateClient() {
+        return TranslateClient.builder()
                 .region(Region.AP_NORTHEAST_2)
                 .build();
     }
