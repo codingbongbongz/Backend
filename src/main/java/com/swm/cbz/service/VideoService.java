@@ -100,7 +100,7 @@ public class VideoService {
 
         UserVideo newUserVideo = new UserVideo();
         newUserVideo.setUsers(userRepository.findById(userId).get());
-        newUserVideo.setVideo(videoRepository.findById(userId).get());
+        newUserVideo.setVideo(videoRepository.findById(videoId).get());
         newUserVideo.setCreatedAt(new Date());
         newUserVideo.setUpdatedAt(new Date());
         UserVideo savedUserVideo = userVideoRepository.save(newUserVideo);
