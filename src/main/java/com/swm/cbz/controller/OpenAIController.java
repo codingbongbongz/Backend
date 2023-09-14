@@ -26,9 +26,8 @@ public class OpenAIController {
     @PostMapping(value = "/openAI/examples")
     public ApiResponse<Map<String, Object>> fetchExamples(@RequestParam String word) {
         Map<String, Object> responseData = new HashMap<>();
-        String inputText = "Give me 5 examples of where this korean word is used in a korean sentence. : '" + word + "'";
         try {
-            List<String> examples = openAIService.fetchExamples(inputText);
+            List<String> examples = openAIService.fetchExamples(word);
             responseData.put("examples", examples);
             return ApiResponse.success(SuccessMessage.OPENAI_SUCCESS, responseData);
         } catch (Exception e) {
@@ -37,15 +36,22 @@ public class OpenAIController {
     }
 
     @PostMapping(value = "/openAI/nouns")
-    public ApiResponse<Map<String, Object>> fetchNouns(@RequestParam String sentence){
+    public ApiResponse<Map<String, Object>> fetchNouns(@RequestParam String sentence) {
         Map<String, Object> responseData = new HashMap<>();
-        String inputText = "Give me the nouns in this korean sentence seperated by blank spaces. : '" + sentence + "'";
+        String inputText = "Give me the nouns in this Korean sentence separated by blank spaces: '" + sentence + "'";
+
         try {
             List<String> nouns = openAIService.fetchNouns(inputText);
-            responseData.put("nouns", nouns);
+            Map<String, List<String>> nounsAndExamples = new HashMap<>();
+            for (String noun : nouns) {
+                List<String> examples = openAIService.getExamples(noun);
+                nounsAndExamples.put(noun, examples);
+            }
+            responseData.put("nounsAndExamples", nounsAndExamples);
             return ApiResponse.success(SuccessMessage.OPENAI_SUCCESS, responseData);
         } catch (Exception e) {
             return ApiResponse.error(ErrorMessage.OPENAI_FAILURE);
         }
     }
+
 }
