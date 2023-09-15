@@ -3,6 +3,7 @@ package com.swm.cbz.common.exception;
 import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.controller.exception.BadRequestException;
 import com.swm.cbz.controller.exception.NotFoundException;
+import com.swm.cbz.controller.exception.TokenForbiddenException;
 import com.swm.cbz.controller.exception.UnauthorizedException;
 import com.swm.cbz.controller.exception.UserConflictException;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,16 @@ public class ControllerExceptionAdvice {
             .body(ApiResponse.error(exception.getError(), exception.getMessage()));
     }
 
-
+    /**
+     * 403 FORBIDDEN
+     */
+    @ExceptionHandler({
+        TokenForbiddenException.class
+    })
+    public ResponseEntity<ApiResponse> ForbiddenException(BaseException exception) {
+        return ResponseEntity.status(FORBIDDEN)
+            .body(ApiResponse.error(exception.getError(), exception.getMessage()));
+    }
 
 
     /**

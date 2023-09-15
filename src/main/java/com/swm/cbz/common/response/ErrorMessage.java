@@ -5,7 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+
+import static org.springframework.http.HttpStatus.CONFLICT;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
+
 import static org.springframework.http.HttpStatus.*;
+
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -13,7 +20,9 @@ public enum ErrorMessage {
     /**
      * auth
      */
-
+    AUTHENTICATION_BEARER_EXCEPTION(UNAUTHORIZED,"Bearer로 시작하지 않는 토큰입니다."),
+    EXPIRED_ALL_TOKEN_EXCEPTION(FORBIDDEN, "토큰이 모두 만료되었습니다. 다시 로그인해주세요."),
+    VALID_ALL_TOKEN_EXCEPTION(FORBIDDEN, "토큰이 모두 유효합니다."),
 
     /**
      * user

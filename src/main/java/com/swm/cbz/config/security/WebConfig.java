@@ -1,5 +1,6 @@
 package com.swm.cbz.config.security;
 
+import com.swm.cbz.config.resolver.ServiceTokenResolver;
 import com.swm.cbz.config.resolver.UserIdResolver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +12,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     private final UserIdResolver userIdResolver;
+    private final ServiceTokenResolver serviceTokenResolver;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(userIdResolver);
+        resolvers.add(serviceTokenResolver);
     }
 }
