@@ -4,6 +4,8 @@ import com.swm.cbz.domain.*;
 import com.swm.cbz.dto.TranscriptDTO;
 import com.swm.cbz.dto.TranscriptDataDTO;
 import com.swm.cbz.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -16,6 +18,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TranscriptService {
+    private static final Logger logger = LoggerFactory.getLogger(TranscriptService.class);
+
     private final TranscriptRepository transcriptRepository;
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
@@ -52,7 +56,6 @@ public class TranscriptService {
     public Video fetchTranscripts(String link, Long userId) throws Exception {
         Users user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("유저를 찾을 수 없습니다."));
-
         List<Map> youtubeData;
         try {
             youtubeData = webClient.get()
@@ -64,15 +67,11 @@ public class TranscriptService {
         } catch (Exception e) {
             throw new Exception("An error occurred while retrieving the transcripts", e);
         }
-
         Video video = createVideo(link, youtubeData);
-
-
         UserVideo userVideo = new UserVideo();
         userVideo.setVideo(video);
         userVideo.setUsers(user);
         userVideoRepository.save(userVideo);
-
         return video;
     }
 
@@ -83,9 +82,9 @@ public class TranscriptService {
         video.setIsDefault(true);
         video.setCreatedAt(new Date());
         videoRepository.save(video);
+        videoRepository.save(video);
         if (youtubeData != null && !youtubeData.isEmpty()) {
             Map<String, Object> details = youtubeData.get(0);
-
             video.setVideoTitle((String) details.get("title"));
             video.setCreator((String) details.get("creator"));
             Object durationObject = details.get("duration");
@@ -94,7 +93,6 @@ public class TranscriptService {
                 long durationInSeconds = Long.parseLong(durationString);
                 video.setDuration(durationInSeconds);
             }
-
             Object youtubeViews = details.get("viewCount");
             if (youtubeViews != null) {
                 String youtubeViewsString = youtubeViews.toString();
@@ -128,37 +126,55 @@ public class TranscriptService {
         transcript.setSentence((String) transcriptMap.get("text"));
         transcript.setStart(((Number) transcriptMap.get("start")).doubleValue());
         transcript.setDuration(((Number) transcriptMap.get("duration")).doubleValue());
-        String audioBase64 = (String) transcriptMap.get("audio");
+        transcript.setVideo(video);
+        transcript = transcriptRepository.save(transcript);
+        return CompletableFuture.completedFuture(transcript);
+    }
+
+    public void audioProcessByTranscript(Transcript transcript) throws Exception {
+        List<Map>youtubeData;
+        if(transcript.getSoundLink()!=null) return;
+        String text = transcript.getSentence();
+        try {
+            youtubeData = webClient.get()
+                    .uri("http://localhost:5000/audio/" + text)
+                    .retrieve()
+                    .bodyToFlux(Map.class)
+                    .collectList()
+                    .block();
+        } catch (Exception e) {
+            throw new Exception("An error occurred while retrieving the transcripts", e);
+        }
+        Map<String, Object> details = youtubeData.get(0);
+        String audioBase64 = (String) details.get("audio");
         if (audioBase64 != null) {
             byte[] audioBytes = Base64.getDecoder().decode(audioBase64);
             String fileName = UUID.randomUUID().toString() + ".mp3";
             String s3Url = s3Service.uploadAudio(audioBytes, fileName);
             transcript.setSoundLink(s3Url);
         }
-        transcript.setVideo(video);
-        transcript = transcriptRepository.save(transcript);
+    }
+    public void translationProcessByTranscript(Transcript transcript) {
+        List<Translation> translations = translationRepository.findByTranscript_TranscriptId(transcript.getTranscriptId());
 
-        List<CompletableFuture<Void>> translationFutures = new ArrayList<>();
-
-        for (String country : targetLanguages) {
-            final Transcript currentTranscript = transcript;
-            CompletableFuture<Void> translationFuture = translateService.translateText((String) transcriptMap.get("text"), "ko", country)
-                    .thenAccept(translationText -> {
-                        Translation translation = new Translation();
-                        translation.setTranscript(currentTranscript);
-                        translation.setCountry(countryRepository.findByCountryCode(country));
-                        translation.setText(translationText);
-                        translationRepository.save(translation);
-                    });
-            translationFutures.add(translationFuture);
+        if (!translations.isEmpty()) {
+            System.out.println(translations);
+            return;
         }
 
+        String text = transcript.getSentence();
+        for (String country : targetLanguages) {
+            String translationText = translateService.translateText(text, "ko", country);
+            Translation translation = new Translation();
+            translation.setTranscript(transcript);
+            translation.setCountry(countryRepository.findByCountryCode(country));
+            translation.setText(translationText);
 
-        CompletableFuture.allOf(translationFutures.toArray(new CompletableFuture[0])).join();
+            System.out.println(translation);
 
-        return CompletableFuture.completedFuture(transcript);
+            translationRepository.save(translation);
+        }
     }
-
 
     public TranscriptDataDTO getTranscriptsByVideoId(Long videoId) {
         return videoRepository.findById(videoId)
@@ -166,18 +182,13 @@ public class TranscriptService {
                     video.setViews(video.getViews() + 1);
                     videoRepository.save(video);
                     List<TranscriptDTO> transcriptDtos = video.getTranscripts().stream()
-                            .sorted(Comparator.comparing(Transcript::getTranscriptId)) // Sort by transcriptId
+                            .sorted(Comparator.comparing(Transcript::getStart)) // Sort by start
                             .map(t -> new TranscriptDTO(t.getTranscriptId(), t.getSentence(), t.getStart(), t.getDuration()))
                             .collect(Collectors.toList());
                     return new TranscriptDataDTO(videoId, transcriptDtos);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Transcripts not found for video with id: " + videoId));
     }
-
-
-
-
-
     public TranscriptDTO getTranscriptByVideoIdAndTranscriptId(Long videoId, Long transcriptId) {
         Optional<Transcript> optionalTranscript = transcriptRepository.findByTranscriptIdAndVideoVideoId(transcriptId, videoId);
 

@@ -68,6 +68,9 @@ public class Users {
     private String introduce;
 
     @Column
+    private Long totalScore = 0L;
+
+    @Column
     @CreatedDate
     private LocalDateTime createdAt;
 
@@ -81,12 +84,13 @@ public class Users {
 
     public static Users of(SignupRequestDTO requestDTO) {
         return Users.builder()
-            .name(requestDTO.getName())
-            .nickname(requestDTO.getNickname())
-            .email(requestDTO.getEmail())
-            .introduce(requestDTO.getIntroduce())
-            .password(requestDTO.getPassword())
-            .createdAt(LocalDateTime.now())
-            .build();
+                .name(requestDTO.getName())
+                .nickname(requestDTO.getNickname())
+                .email(requestDTO.getEmail())
+                .introduce(requestDTO.getIntroduce())
+                .password(requestDTO.getPassword())
+                .totalScore(0L)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

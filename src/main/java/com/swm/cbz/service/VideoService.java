@@ -4,18 +4,13 @@ import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.ErrorMessage;
 import com.swm.cbz.common.response.SuccessMessage;
 import com.swm.cbz.controller.exception.NotFoundException;
-import com.swm.cbz.domain.Category;
-import com.swm.cbz.domain.CategoryVideo;
-import com.swm.cbz.domain.Users;
-import com.swm.cbz.domain.Video;
+import com.swm.cbz.domain.*;
+import com.swm.cbz.dto.UserVideoDTO;
 import com.swm.cbz.dto.video.response.CategoryResponseDTO;
 import com.swm.cbz.dto.video.response.CategoryVO;
 import com.swm.cbz.dto.video.response.PopularVideoResponseDTO;
 import com.swm.cbz.dto.video.response.PopularVideoVO;
-import com.swm.cbz.repository.CategoryRepository;
-import com.swm.cbz.repository.CategoryVideoRepository;
-import com.swm.cbz.repository.UserRepository;
-import com.swm.cbz.repository.VideoRepository;
+import com.swm.cbz.repository.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,11 +37,16 @@ public class VideoService {
 
     private final CategoryVideoRepository categoryVideoRepository;
 
+    private final UserVideoRepository userVideoRepository;
+
     private final CategoryRepository categoryRepository;
 
     private final TranscriptService transcriptService;
 
     public ApiResponse<Video> uploadVideo(Long userId, String link) {
+        if(videoRepository.existsByLink(link)){
+            return ApiResponse.error(ErrorMessage.VIDEO_ALREADY_EXISTS, "video");
+        }
         try {
             Video video = transcriptService.fetchTranscripts(link, userId);
             return ApiResponse.success(SuccessMessage.CREATE_VIDEO_SUCCESS, video);
@@ -81,5 +82,32 @@ public class VideoService {
                 .toList();
         return CategoryResponseDTO.of(videoList);
 
+    }
+    public UserVideoDTO viewVideo(Long userId, Long videoId) throws Exception {
+        if (!userRepository.existsById(userId)) {
+            throw new Exception("User does not exist.");
+        }
+
+        if (!videoRepository.existsById(videoId)) {
+            throw new Exception("Video does not exist.");
+        }
+
+        Optional<UserVideo> existingUserVideo = userVideoRepository.findByUsers_UserIdAndVideo_VideoId(userId, videoId);
+
+        if (existingUserVideo.isPresent()) {
+            throw new Exception("The video has already been viewed by the user.");
+        }
+
+        UserVideo newUserVideo = new UserVideo();
+        newUserVideo.setUsers(userRepository.findById(userId).get());
+        newUserVideo.setVideo(videoRepository.findById(videoId).get());
+        newUserVideo.setCreatedAt(new Date());
+        newUserVideo.setUpdatedAt(new Date());
+        UserVideo savedUserVideo = userVideoRepository.save(newUserVideo);
+        UserVideoDTO userVideoDTO = new UserVideoDTO();
+        userVideoDTO.setUsersId(userId);
+        userVideoDTO.setVideosId(videoId);
+
+        return userVideoDTO;
     }
 }
