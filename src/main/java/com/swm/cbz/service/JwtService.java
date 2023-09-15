@@ -111,7 +111,7 @@ public class JwtService {
 
         String userId = parser.parseClaimsJws(token)
             .getBody()
-            .getId();
+            .get("userId").toString();
 
         return Long.valueOf(userId);
     }

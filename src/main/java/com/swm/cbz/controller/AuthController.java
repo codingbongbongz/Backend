@@ -2,8 +2,10 @@ package com.swm.cbz.controller;
 
 import com.swm.cbz.common.response.ApiResponse;
 import com.swm.cbz.common.response.SuccessMessage;
+import com.swm.cbz.config.resolver.ServiceToken;
 import com.swm.cbz.dto.authorization.request.SignupRequestDTO;
 import com.swm.cbz.dto.authorization.response.SignupResponseDTO;
+import com.swm.cbz.dto.authorization.response.TokenServiceVO;
 import com.swm.cbz.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,12 @@ public class AuthController {
     ) {
         SignupResponseDTO data = authService.signupService(requestDTO);
         return ApiResponse.success(SuccessMessage.SIGNUP_SUCCESS, data);
+    }
+
+    @PostMapping("/auth/token")
+    public ApiResponse<TokenServiceVO> reIssueToken(@ServiceToken TokenServiceVO token) {
+        TokenServiceVO data = authService.reIssueToken(token);
+        return ApiResponse.success(SuccessMessage.LOGIN_SUCCESS, data);
     }
 
 }
