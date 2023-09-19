@@ -15,6 +15,7 @@ public enum SuccessMessage {
      */
     LOGIN_SUCCESS(CREATED, "로그인이 성공했습니다."),
     SIGNUP_SUCCESS(CREATED, "회원가입에 성공했습니다."),
+    TOKEN_RE_ISSUE_SUCCESS(CREATED, "토큰 재발급에 성공했습니다."),
 
     /**
      * user
