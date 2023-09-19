@@ -24,11 +24,13 @@ public class TranscriptService {
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
     private final TranslationRepository translationRepository;
+    private final CategoryVideoRepository categoryVideoRepository;
     private final TranslateService translateService;
 
     private final CountryRepository countryRepository;
     private final WebClient webClient;
 
+    private final CategoryRepository categoryRepository;
     private final S3Service s3Service;
     private final UserVideoRepository userVideoRepository;
     ExchangeStrategies strategies = ExchangeStrategies.builder()
@@ -38,13 +40,15 @@ public class TranscriptService {
     List<String> targetLanguages = Arrays.asList("en");
     // List<String> targetLanguages = Arrays.asList("en", "vi", "tl", "zh", "ja");  개느려서 비동기 공부더되기전까진 주석
 
-    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, TranslationRepository translationRepository, TranslateService translateService, CountryRepository countryRepository, S3Service s3Service, UserVideoRepository userVideoRepository) {
+    public TranscriptService(UserRepository userRepository, VideoRepository videoRepository, WebClient.Builder webClientBuilder, TranscriptRepository transcriptRepository, TranslationRepository translationRepository, CategoryVideoRepository categoryVideoRepository, TranslateService translateService, CountryRepository countryRepository, CategoryRepository categoryRepository, S3Service s3Service, UserVideoRepository userVideoRepository) {
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
         this.transcriptRepository = transcriptRepository;
         this.translationRepository = translationRepository;
+        this.categoryVideoRepository = categoryVideoRepository;
         this.translateService = translateService;
         this.countryRepository = countryRepository;
+        this.categoryRepository = categoryRepository;
         this.s3Service = s3Service;
         this.userVideoRepository = userVideoRepository;
         this.webClient = WebClient.builder()
@@ -75,6 +79,12 @@ public class TranscriptService {
         return video;
     }
 
+    private void saveCategoryVideo(Video video, Category category){
+        CategoryVideo categoryVideo = new CategoryVideo();
+        categoryVideo.setCategory(category);
+        categoryVideo.setVideo(video);
+        categoryVideoRepository.save(categoryVideo);
+    }
     private Video createVideo(String link, List<Map> youtubeData) {
         Video video = new Video();
         video.setLink(link);
@@ -82,12 +92,15 @@ public class TranscriptService {
         video.setIsDefault(true);
         video.setCreatedAt(new Date());
         videoRepository.save(video);
-        videoRepository.save(video);
         if (youtubeData != null && !youtubeData.isEmpty()) {
             Map<String, Object> details = youtubeData.get(0);
             video.setVideoTitle((String) details.get("title"));
             video.setCreator((String) details.get("creator"));
             Object durationObject = details.get("duration");
+            String categoryIdStr = (String) details.get("category");
+            Long categoryId = Long.parseLong(categoryIdStr);
+            Category category = categoryRepository.findById(categoryId).get();
+            saveCategoryVideo(video, category);
             if (durationObject != null) {
                 String durationString = durationObject.toString();
                 long durationInSeconds = Long.parseLong(durationString);
