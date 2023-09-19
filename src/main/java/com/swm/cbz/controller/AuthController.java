@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/auth/token")
     public ApiResponse<TokenServiceVO> reIssueToken(@ServiceToken TokenServiceVO token) {
         TokenServiceVO data = authService.reIssueToken(token);
-        return ApiResponse.success(SuccessMessage.LOGIN_SUCCESS, data);
+        return ApiResponse.success(SuccessMessage.TOKEN_RE_ISSUE_SUCCESS, data);
     }
 
 }
