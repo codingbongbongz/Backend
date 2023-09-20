@@ -24,7 +24,7 @@ public class SecurityConfiguration {
             .cors()
             .and()
             .authorizeRequests()
-            .antMatchers("/auth/signup","/profile", "/health").permitAll()
+            .antMatchers("/auth/signup").permitAll()
             .antMatchers("/api/*").authenticated()
             .and()
             .sessionManagement()
