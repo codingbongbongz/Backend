@@ -77,6 +77,10 @@ dependencies {
 	//AWS translate sdk
 	implementation 'software.amazon.awssdk:translate:2.20.68'
 
+	//prometheus & grafana
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 tasks.named('test') {
