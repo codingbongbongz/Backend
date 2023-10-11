@@ -21,7 +21,7 @@ public class LeaderboardService {
 
     public List<LeaderboardDTO> getLeaderboardData() {
         Set<ZSetOperations.TypedTuple<String>> range = redisTemplate.opsForZSet()
-                .reverseRangeWithScores("video:leaderboard", 0, 9); // top 10
+                .reverseRangeWithScores("video:leaderboard", 0, -1); // all list
 
         assert range != null;
         return range.stream()
@@ -34,7 +34,7 @@ public class LeaderboardService {
 
     public List<LeaderboardDTO> getEvaluationLeaderboardData() {
         Set<ZSetOperations.TypedTuple<String>> range = redisTemplate.opsForZSet()
-                .reverseRangeWithScores("evaluation:leaderboard", 0, 9); // top 10
+                .reverseRangeWithScores("evaluation:leaderboard", 0, -1); // whole list
 
         assert range != null;
         return range.stream()

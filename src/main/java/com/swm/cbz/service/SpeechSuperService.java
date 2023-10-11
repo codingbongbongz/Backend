@@ -13,7 +13,6 @@ import com.swm.cbz.dto.SpeechSuperResponse;
 import com.swm.cbz.repository.EvaluationRepository;
 import com.swm.cbz.repository.TranscriptRepository;
 import com.swm.cbz.repository.UserRepository;
-import org.apache.catalina.User;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpEntity;
@@ -28,16 +27,14 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -52,13 +49,16 @@ public class SpeechSuperService {
     private final TranscriptRepository transcriptRepository;
     private final UserRepository userRepository;
 
+    private final StringRedisTemplate redisTemplate;
+
     @Autowired
-    public SpeechSuperService(SpeechSuperConfig speechSuperConfig, EvaluationRepository evaluationRepository, TranscriptRepository transcriptRepository, UserRepository userRepository) {
+    public SpeechSuperService(SpeechSuperConfig speechSuperConfig, EvaluationRepository evaluationRepository, TranscriptRepository transcriptRepository, UserRepository userRepository, StringRedisTemplate redisTemplate) {
         this.appKey = speechSuperConfig.getKey();
         this.secretKey = speechSuperConfig.getSecret();
         this.evaluationRepository = evaluationRepository;
         this.transcriptRepository = transcriptRepository;
         this.userRepository = userRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     public String HttpAPI(byte[] audioData, String audioType, String audioSampleRate, String refText, String coreType) {
@@ -195,6 +195,8 @@ public class SpeechSuperService {
                 Users user = userRepository.findById(userId).get();
                 user.setTotalScore(user.getTotalScore() + apiResponse.getOverall());
                 userRepository.save(user);
+                String userIdStr = String.valueOf(userId);
+                redisTemplate.opsForZSet().incrementScore("evaluation:leaderboard", userIdStr, apiResponse.getOverall());
                 evaluationRepository.save(evaluation);
                 Map<String, Object> data = new HashMap<>();
                 data.put("userId", userId);

@@ -15,6 +15,7 @@ import com.swm.cbz.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.User;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class VideoService {
 
     private final UserService userService;
 
+    private final StringRedisTemplate stringRedisTemplate;
     private final CategoryVideoRepository categoryVideoRepository;
 
     private final UserVideoRepository userVideoRepository;
@@ -107,7 +109,7 @@ public class VideoService {
         UserVideoDTO userVideoDTO = new UserVideoDTO();
         userVideoDTO.setUsersId(userId);
         userVideoDTO.setVideosId(videoId);
-
+        stringRedisTemplate.opsForZSet().incrementScore("video:leaderboard",String.valueOf(userId),1);
         return userVideoDTO;
     }
 }
