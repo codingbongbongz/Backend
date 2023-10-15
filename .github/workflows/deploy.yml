@@ -33,12 +33,13 @@ jobs:
     - name: make application.properties 파일 생성
       run: |
         cd ./src/main/resources
-
+        
         touch ./application.yml
-
         echo "${{ secrets.APPLICATION }}" >> ./application.yml
         
-        cat ./application.yml
+        touch ./apple_secret.json
+        echo "${{ secrets.APPLE_SECRET_KEY }}" > ./apple_secret.json
+        sed -i 's/#/"/g' ./apple_secret.json
       shell: bash
         
     - name: Grant execute permission for gradlew
