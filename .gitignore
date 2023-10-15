@@ -224,5 +224,6 @@ gradle-app.setting
 application.yaml
 application.yml
 application-dev.yml
+apple_secret.json
 
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,intellij+all,windows,macos,visualstudiocode
