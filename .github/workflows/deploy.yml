@@ -38,7 +38,7 @@ jobs:
         echo "${{ secrets.APPLICATION }}" >> ./application.yml
         
         touch ./apple_secret.json
-        echo "${{ secrets.APPLE_SECRET_KEY }}" > ./apple_secret.json
+        echo "${{ secrets.APPLE_SECRET_KEY }}" >> ./apple_secret.json
         sed -i 's/#/"/g' ./apple_secret.json
       shell: bash
         
