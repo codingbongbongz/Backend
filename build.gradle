@@ -77,6 +77,9 @@ dependencies {
 	//AWS translate sdk
 	implementation 'software.amazon.awssdk:translate:2.20.68'
 
+	// gson
+	implementation 'com.google.code.gson:gson:2.10.1'
+
 	//prometheus & grafana
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.micrometer:micrometer-registry-prometheus'

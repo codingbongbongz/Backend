@@ -51,7 +51,6 @@ public class Users {
     private String email;
 
     @Column
-    @NotNull
     private String nickname;
 
     @ManyToOne
