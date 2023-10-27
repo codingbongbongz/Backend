@@ -1,5 +1,6 @@
 package com.swm.cbz.service;
 
+import com.google.gson.Gson;
 import com.swm.cbz.client.AppleWebClient;
 import com.swm.cbz.client.GoogleWebClient;
 import com.swm.cbz.domain.Users;
@@ -37,6 +38,11 @@ public class GoogleService {
         ResponseEntity<GoogleUserInfoResponse> googleUserInfo =
             googleWebClient.getGoogleUserInfo(googleToken.getBody().getAccessToken());
 
+        Gson gson = new Gson();
+        GoogleUserInfoResponse response =
+            gson.fromJson(googleToken.toString(), GoogleUserInfoResponse.class);
+
+        return GoogleLoginResponse.of(response);
 
     }
 

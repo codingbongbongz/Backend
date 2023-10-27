@@ -31,7 +31,7 @@ public class GoogleWebClient {
     private String redirectUri;
     private String clientSecret;
     private String tokenUri;
-    private final String googleUserInfoUri = "https://www.googleapis.com/oauth2/v2/userinfo"
+    private final String googleUserInfoUri = "https://www.googleapis.com/oauth2/v2/userinfo";
 
     @SneakyThrows
     public ResponseEntity<GoogleTokenClientResponse> getGoogleToken(String code) {
