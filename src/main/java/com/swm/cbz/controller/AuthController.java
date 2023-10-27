@@ -9,8 +9,11 @@ import com.swm.cbz.dto.authorization.request.SigninRequestDTO;
 import com.swm.cbz.dto.authorization.request.SignupRequestDTO;
 import com.swm.cbz.dto.authorization.response.SignupResponseDTO;
 import com.swm.cbz.dto.authorization.response.TokenServiceVO;
+import com.swm.cbz.dto.google.request.GoogleLoginRequest;
+import com.swm.cbz.dto.google.response.GoogleLoginResponse;
 import com.swm.cbz.service.AppleService;
 import com.swm.cbz.service.AuthService;
+import com.swm.cbz.service.GoogleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +27,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final AppleService appleService;
+    private final GoogleService googleService;
 
     @PostMapping("/auth/signup")
     public ApiResponse<SignupResponseDTO> signup(
@@ -50,6 +54,14 @@ public class AuthController {
         @RequestBody SigninRequestDTO requestDTO
     ) {
         TokenServiceVO data = authService.signinService(requestDTO);
+        return ApiResponse.success(SuccessMessage.LOGIN_SUCCESS, data);
+    }
+
+    @PostMapping("/google/login")
+    public ApiResponse<GoogleLoginResponse> googleSocialLogin(
+        @RequestBody GoogleLoginRequest request
+    ) {
+        GoogleLoginResponse data = googleService.googleLogin(request);
         return ApiResponse.success(SuccessMessage.LOGIN_SUCCESS, data);
     }
 
