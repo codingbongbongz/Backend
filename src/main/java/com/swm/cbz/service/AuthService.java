@@ -6,6 +6,7 @@ import com.swm.cbz.controller.exception.NotFoundException;
 import com.swm.cbz.controller.exception.TokenForbiddenException;
 import com.swm.cbz.controller.exception.UserConflictException;
 import com.swm.cbz.domain.Users;
+import com.swm.cbz.dto.authorization.request.SigninRequestDTO;
 import com.swm.cbz.dto.authorization.request.SignupRequestDTO;
 import com.swm.cbz.dto.authorization.response.SignupResponseDTO;
 import com.swm.cbz.dto.authorization.response.TokenServiceVO;
@@ -52,6 +53,18 @@ public class AuthService {
         throw new TokenForbiddenException(ErrorMessage.VALID_ALL_TOKEN_EXCEPTION);
     }
 
+    public TokenServiceVO signinService(SigninRequestDTO requestDTO) {
+        userRepository.findByPassword(requestDTO.getPassword())
+            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOT_FOUND_USER_EXCEPTION));
+
+        Users user = userRepository.findByEmail(requestDTO.getEmail())
+            .orElseThrow(() -> new NotFoundException(ErrorMessage.NOT_FOUND_USER_EXCEPTION));
+
+        TokenServiceVO tokenServiceVO = registerToken(user);
+
+        return TokenServiceVO.of(tokenServiceVO.getAccessToken(), tokenServiceVO.getRefreshToken());
+    }
+
     public void validateUserData(SignupRequestDTO requestDTO) {
         userRepository.findByPassword(requestDTO.getPassword())
             .ifPresent(action -> {
@@ -82,5 +95,6 @@ public class AuthService {
 
         return token;
     }
+
 
 }

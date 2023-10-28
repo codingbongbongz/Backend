@@ -45,5 +45,4 @@ public class AppleService {
         return AppleCallbackResponse.of(tokenServiceVO);
     }
 
-
 }
