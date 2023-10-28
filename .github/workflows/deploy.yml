@@ -40,6 +40,10 @@ jobs:
         touch ./apple_secret.json
         echo "${{ secrets.APPLE_SECRET_KEY }}" >> ./apple_secret.json
         sed -i 's/#/"/g' ./apple_secret.json
+
+        touch ./google_secret.json
+        echo "${{ secrets.GOOGLE_SECRET_KEY }}" >> ./google_secret.json
+        sed -i 's/#/"/g' ./google_secret.json
       shell: bash
         
     - name: Grant execute permission for gradlew
