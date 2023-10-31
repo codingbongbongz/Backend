@@ -12,6 +12,8 @@ import com.swm.cbz.service.VideoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class VideoController {
 
@@ -34,11 +36,12 @@ public class VideoController {
         return ApiResponse.success(SuccessMessage.GET_POPULAR_VIDEO_SUCCESS, data);
     }
 
-    @GetMapping("/videos/category")
-    public ApiResponse<CategoryResponseDTO> getCategoryVideo(@RequestParam Long categoryId){
-        CategoryResponseDTO data = videoService.getCategoryVideo(categoryId);
+    @GetMapping("/videos/categories")
+    public ApiResponse<List<CategoryResponseDTO>> getCategoriesVideo(@RequestParam List<Long> categoryIds) {
+        List<CategoryResponseDTO> data = videoService.getCategoriesVideo(categoryIds);
         return ApiResponse.success(SuccessMessage.GET_CATEGORY_VIDEO_SUCCESS, data);
     }
+
 
     @PostMapping("/videos")
     public ApiResponse<UserVideoDTO> viewVideo(@UserId Long userId, @RequestParam Long videoId) throws Exception {
