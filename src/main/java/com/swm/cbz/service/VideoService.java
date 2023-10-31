@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -72,19 +73,26 @@ public class VideoService {
         return PopularVideoResponseDTO.of(videoList);
     }
 
-    public CategoryResponseDTO getCategoryVideo(Long categoryId){
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new NotFoundException(NOT_FOUND_CATEGORY_EXCEPTION));
+    public List<CategoryResponseDTO> getCategoriesVideo(List<Long> categoryIds) {
+        List<CategoryResponseDTO> categoryResponseList = new ArrayList<>();
 
-        List<CategoryVideo> categoryVideos = categoryVideoRepository.findByCategory_CategoryId(categoryId);
-        List<Video> videos = categoryVideos.stream().map(CategoryVideo::getVideo).toList();
+        for (Long categoryId : categoryIds) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new NotFoundException(NOT_FOUND_CATEGORY_EXCEPTION));
 
-        List<CategoryVO> videoList = videos.stream()
-                .map(CategoryVO::of)
-                .toList();
-        return CategoryResponseDTO.of(videoList);
+            List<CategoryVideo> categoryVideos = categoryVideoRepository.findByCategory_CategoryId(categoryId);
+            List<Video> videos = categoryVideos.stream().map(CategoryVideo::getVideo).collect(Collectors.toList());
 
+            List<CategoryVO> videoList = videos.stream()
+                    .map(CategoryVO::of)
+                    .collect(Collectors.toList());
+
+            categoryResponseList.add(CategoryResponseDTO.of(videoList));
+        }
+
+        return categoryResponseList;
     }
+
     public UserVideoDTO viewVideo(Long userId, Long videoId) throws Exception {
         if (!userRepository.existsById(userId)) {
             throw new Exception("User does not exist.");
